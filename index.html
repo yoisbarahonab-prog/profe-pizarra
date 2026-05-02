@@ -337,19 +337,19 @@
   .widget-title {
     font-family: 'Fraunces', serif;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 0 !important;
+    width: 22px;
+    min-width: 22px;
+    overflow: hidden;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
   }
-  .widget[data-type="timer"] .widget-title,
-  .widget[data-type="campanilla"] .widget-title {
-    font-size: 0;
-  }
-  .widget[data-type="timer"] .widget-title::before,
-  .widget[data-type="campanilla"] .widget-title::before {
+  .widget-title::before {
     content: attr(data-icon);
-    font-size: 16px;
+    font-size: 16px !important;
+    line-height: 1;
   }
   .widget-close {
     background: rgba(0,0,0,0.15);
@@ -2596,10 +2596,14 @@
 
   body.presentation-mode .top-bar,
   body.presentation-mode .bottom-dock,
+  body.presentation-mode .screens-panel,
+  body.presentation-mode .screens-tab,
   body.presentation-mode .welcome-tip,
   body.presentation-mode .toast,
   body.exporting .top-bar,
   body.exporting .bottom-dock,
+  body.exporting .screens-panel,
+  body.exporting .screens-tab,
   body.exporting .welcome-tip,
   body.exporting .toast {
     display: none !important;
@@ -2612,6 +2616,113 @@
   body.presentation-mode .widget-resize,
   body.exporting .widget-resize {
     display: none !important;
+  }
+
+  .screens-tab {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 82;
+    width: 22px;
+    height: 56px;
+    border: none;
+    border-radius: 0 12px 12px 0;
+    background: rgba(255,255,255,0.94);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.2);
+    cursor: pointer;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .screens-panel {
+    position: fixed;
+    top: 90px;
+    left: 34px;
+    width: 230px;
+    max-height: calc(100vh - 130px);
+    z-index: 81;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 14px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .screens-panel.show { display: flex; }
+  .screens-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 10px;
+  }
+  .screens-title {
+    font-weight: 800;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .screens-close {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 22px;
+    color: var(--ink-soft);
+  }
+  .screens-list {
+    display: grid;
+    gap: 10px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+  .screen-card {
+    border: 2px solid transparent;
+    border-radius: 12px;
+    background: #f6f7fb;
+    padding: 8px;
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .screen-card.active {
+    background: #f0efff;
+    border-color: var(--accent-5);
+  }
+  .screen-thumb {
+    height: 86px;
+    border-radius: 8px;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: white;
+    font-size: 24px;
+    letter-spacing: 4px;
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+  }
+  .screen-label {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+  .screen-card.active .screen-label { color: #6258ff; }
+  .screen-add {
+    height: 82px;
+    border: none;
+    border-radius: 10px;
+    background: #f3f4f6;
+    color: #6258ff;
+    font-size: 34px;
+    cursor: pointer;
+    font-weight: 700;
   }
 
   @media (max-width: 760px) {
@@ -2642,6 +2753,10 @@
       justify-content: flex-start;
       width: calc(100vw - 20px);
     }
+    .screens-panel {
+      left: 14px;
+      width: min(230px, calc(100vw - 28px));
+    }
   }
 </style>
 </head>
@@ -2649,6 +2764,17 @@
 
 <!-- FONDO -->
 <div class="stage bg-bosque" id="stage"></div>
+
+<!-- PANEL DE PANTALLAS -->
+<button class="screens-tab" onclick="toggleScreensPanel()" title="Pantallas">▦</button>
+<aside class="screens-panel" id="screensPanel">
+  <div class="screens-head">
+    <div class="screens-title">Profe Pizarra</div>
+    <button class="screens-close" onclick="toggleScreensPanel(false)" title="Cerrar">×</button>
+  </div>
+  <div class="screens-list" id="screensList"></div>
+  <button class="screen-add" onclick="addScreen()" title="Agregar pantalla">+</button>
+</aside>
 
 <!-- BARRA SUPERIOR -->
 <div class="top-bar">
@@ -2930,8 +3056,11 @@
   let nextPosition = { x: 60, y: 100 };
   let isPro = false;
   const STORAGE_KEY = 'profePantalla.v5.workspace';
+  const STORAGE_BUILD = 2026050204;
   let isRestoringState = false;
   let saveTimer = null;
+  let screens = [];
+  let activeScreenId = null;
 
   // Templates de cada widget (HTML del cuerpo)
   const widgetTemplates = {
@@ -3406,7 +3535,7 @@
         <div class="noise-display">
           <div class="noise-bar-container">
             <div class="noise-fill"></div>
-            <div class="noise-threshold" style="left:70%"></div>
+            <div class="noise-threshold" style="left:24%"></div>
           </div>
           <div style="display:flex; justify-content:center; align-items:center; margin: 6px 0;">
             <span class="bell-icon">🔔</span>
@@ -3421,16 +3550,20 @@
             <button class="icon-btn reset-bell" title="Reiniciar contador" aria-label="Reiniciar contador">↺</button>
           </div>
           <div class="mic-help" style="font-size:10px; color:var(--ink-soft); margin-top:6px; line-height:1.35;"></div>
+          <div class="noise-live-status" style="font-size:10px; color:var(--ink); margin-top:4px; font-weight:700;">Nivel: 0%</div>
 
           <div class="noise-extra-controls" style="display:none; margin-top:8px;">
+            <select class="mic-select" title="Seleccionar micrófono" style="width:100%; margin-bottom:8px; padding:7px 8px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:11px;">
+              <option value="">Micrófono predeterminado</option>
+            </select>
             <div style="display:flex; gap:6px; justify-content:center; align-items:center; flex-wrap:wrap;">
               <button class="icon-btn mute-btn" title="Silenciar campanilla" aria-label="Silenciar campanilla">🔊</button>
               <button class="icon-btn danger pause-btn" title="Pausar detección" aria-label="Pausar detección">⏸</button>
             </div>
             <div style="display:flex; gap:6px; align-items:center; justify-content:center; margin-top:8px;">
               <span style="font-size:10px; color:var(--ink-soft);">Sensibilidad:</span>
-              <input type="range" min="20" max="90" value="70" class="threshold-slider" style="flex:1; max-width:120px;">
-              <span class="threshold-value" style="font-size:10px; font-weight:700;">70%</span>
+              <input type="range" min="5" max="65" value="24" class="threshold-slider" style="flex:1; max-width:120px;">
+              <span class="threshold-value" style="font-size:10px; font-weight:700;">24%</span>
             </div>
           </div>
 
@@ -3455,14 +3588,16 @@
         const counter = root.querySelector('.noise-counter');
         const bell = root.querySelector('.bell-icon');
         const thresholdLine = root.querySelector('.noise-threshold');
-        let threshold = 70;
+        let threshold = 24;
         let count = 0;
         let ringingCooldown = false;
+        let visualLevel = 0;
         let analyser = null;
         let micStream = null;
         let audioCtx = null;
         let rafId = null;
         let demoTimer = null;
+        let meterFrame = 0;
         let muted = false;
         let paused = false;
 
@@ -3525,7 +3660,13 @@
         };
 
         const updateBar = (level) => {
-          fill.style.width = `${Math.min(100, level)}%`;
+          level = Math.max(0, Math.min(100, level));
+          visualLevel = Math.max(level, visualLevel * 0.82);
+          level = visualLevel;
+          fill.style.width = `${level}%`;
+          const liveStatus = root.querySelector('.noise-live-status');
+          if (liveStatus) liveStatus.textContent = `Nivel: ${Math.round(level)}%`;
+          fill.style.filter = level >= threshold ? 'saturate(1.35)' : 'none';
           if (level > threshold && !ringingCooldown && !paused) {
             ringBell(true);
             ringingCooldown = true;
@@ -3542,11 +3683,26 @@
         const thresholdValue = root.querySelector('.threshold-value');
         const help = root.querySelector('.mic-help');
         const demoBtn = root.querySelector('.demo-noise');
+        const micSelect = root.querySelector('.mic-select');
 
         const hasMicApi = () => !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
         const isLocalFile = () => window.location.protocol === 'file:';
         const updateMicHelp = (message) => {
           help.textContent = message || '';
+        };
+        const loadMicDevices = async () => {
+          if (!navigator.mediaDevices?.enumerateDevices) return;
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const mics = devices.filter(d => d.kind === 'audioinput');
+          const current = micSelect.value;
+          micSelect.innerHTML = '<option value="">Micrófono predeterminado</option>';
+          mics.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.textContent = device.label || `Micrófono ${index + 1}`;
+            micSelect.appendChild(option);
+          });
+          if ([...micSelect.options].some(o => o.value === current)) micSelect.value = current;
         };
 
         if (!hasMicApi()) {
@@ -3568,6 +3724,7 @@
             clearInterval(demoTimer);
             demoTimer = null;
             fill.style.width = '0%';
+            root.querySelector('.noise-live-status').textContent = 'Nivel: 0%';
             demoBtn.textContent = '▰';
             demoBtn.title = 'Simular ruido';
             updateMicHelp('');
@@ -3579,7 +3736,7 @@
           let t = 0;
           demoTimer = setInterval(() => {
             t += 0.35;
-            const level = Math.max(5, Math.min(100, 45 + Math.sin(t) * 38 + Math.random() * 22));
+            const level = Math.max(3, Math.min(100, 18 + Math.sin(t) * 30 + Math.random() * 34));
             updateBar(level);
           }, 180);
         });
@@ -3600,7 +3757,9 @@
             audioCtx.close();
             audioCtx = null;
           }
+          visualLevel = 0;
           fill.style.width = '0%';
+          root.querySelector('.noise-live-status').textContent = 'Nivel: 0%';
           micBtn.textContent = '🎤';
           micBtn.title = 'Activar micrófono';
           micBtn.classList.add('primary');
@@ -3617,18 +3776,52 @@
             return;
           }
           try {
-            micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const deviceId = micSelect.value;
+            const audioConstraints = {
+              echoCancellation: false,
+              noiseSuppression: false,
+              autoGainControl: false
+            };
+            if (deviceId) audioConstraints.deviceId = { exact: deviceId };
+            try {
+              micStream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraints });
+            } catch (firstErr) {
+              micStream = await navigator.mediaDevices.getUserMedia(deviceId ? { audio: { deviceId: { exact: deviceId } } } : { audio: true });
+            }
+            await loadMicDevices();
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
             const src = audioCtx.createMediaStreamSource(micStream);
             analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 256;
+            analyser.fftSize = 2048;
+            analyser.smoothingTimeConstant = 0.45;
             src.connect(analyser);
-            const data = new Uint8Array(analyser.frequencyBinCount);
+            const data = new Uint8Array(analyser.fftSize);
+            const freqData = new Uint8Array(analyser.frequencyBinCount);
             const tick = () => {
-              analyser.getByteFrequencyData(data);
-              const avg = data.reduce((a,b)=>a+b,0) / data.length;
-              const level = Math.min(100, (avg / 128) * 100);
-              if (!paused) updateBar(level);
+              analyser.getByteTimeDomainData(data);
+              analyser.getByteFrequencyData(freqData);
+              let sum = 0;
+              let peak = 0;
+              for (let i = 0; i < data.length; i++) {
+                const centered = (data[i] - 128) / 128;
+                sum += centered * centered;
+                peak = Math.max(peak, Math.abs(centered));
+              }
+              let freqSum = 0;
+              for (let i = 4; i < freqData.length; i++) freqSum += freqData[i];
+              const rms = Math.sqrt(sum / data.length);
+              const freqAvg = freqSum / Math.max(1, freqData.length - 4);
+              const level = Math.min(100, Math.max(
+                Math.pow(rms, 0.34) * 230 - 18,
+                peak * 420,
+                freqAvg * 1.55
+              ));
+              if (!paused) {
+                updateBar(level);
+                meterFrame++;
+                if (meterFrame % 12 === 0) updateMicHelp('Micrófono activo. Ajusta sensibilidad si la barra no llega al umbral.');
+              }
               rafId = requestAnimationFrame(tick);
             };
             tick();
@@ -3646,6 +3839,11 @@
             showToast('⚠️ No se pudo acceder al micrófono');
           }
         });
+        micSelect.addEventListener('change', async () => {
+          if (!micStream) return;
+          stopMic();
+          setTimeout(() => micBtn.click(), 80);
+        });
 
         // Botón silenciar (solo apaga el sonido, sigue detectando)
         muteBtn.addEventListener('click', () => {
@@ -3660,7 +3858,11 @@
           paused = !paused;
           pauseBtn.textContent = paused ? '▶' : '⏸';
           pauseBtn.title = paused ? 'Reanudar detección' : 'Pausar detección';
-          if (paused) fill.style.width = '0%';
+          if (paused) {
+            visualLevel = 0;
+            fill.style.width = '0%';
+            root.querySelector('.noise-live-status').textContent = 'Nivel: 0%';
+          }
           showToast(paused ? '⏸ Detección pausada' : '▶ Detección reanudada');
         });
 
@@ -5172,6 +5374,19 @@
   function uid(prefix) { return `${prefix}_${++uidCount}`; }
 
   /* ============== AGREGAR / QUITAR WIDGETS ============== */
+  function getWidgetIcon(title) {
+    return (title || '▣').trim().split(/\s+/)[0] || '▣';
+  }
+
+  function compactWidgetHeader(el, tpl) {
+    const title = el.querySelector('.widget-title');
+    if (!title) return;
+    const icon = tpl.icon || getWidgetIcon(tpl.title);
+    title.dataset.icon = icon;
+    title.title = tpl.title;
+    title.textContent = icon;
+  }
+
   function toggleWidget(type) {
     // Ocultar tip de bienvenida en primer clic
     document.getElementById('welcomeTip').classList.add('hide');
@@ -5203,12 +5418,13 @@
     el.style.width = (tpl.width || 240) + 'px';
     el.innerHTML = `
       <div class="widget-handle">
-        <div class="widget-title" data-icon="${tpl.icon || ''}" title="${tpl.title}">${tpl.title}</div>
+        <div class="widget-title" data-icon="${tpl.icon || getWidgetIcon(tpl.title)}" title="${tpl.title}">${tpl.icon || getWidgetIcon(tpl.title)}</div>
         <button class="widget-close" onclick="toggleWidget('${type}')">×</button>
       </div>
       <div class="widget-body">${tpl.body()}</div>
       <div class="widget-resize" title="Arrastra para redimensionar"></div>
     `;
+    compactWidgetHeader(el, tpl);
     // posición inicial inteligente (en cascada)
     el.style.left = nextPosition.x + 'px';
     el.style.top = nextPosition.y + 'px';
@@ -5867,13 +6083,149 @@
     showToast('Pizarra guardada en este navegador');
   }
 
+  function createEmptyScreen(index = 1) {
+    return {
+      id: 'screen_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+      name: `${index} - Screen`,
+      snapshot: {
+        stage: {
+          className: 'stage bg-bosque',
+          backgroundImage: '',
+          backgroundSize: '',
+          backgroundPosition: ''
+        },
+        widgets: [],
+        stickers: [],
+        nextPosition: { x: 60, y: 100 }
+      }
+    };
+  }
+
+  function captureScreenSnapshot() {
+    return {
+      stage: {
+        className: stage.className,
+        backgroundImage: stage.style.backgroundImage || '',
+        backgroundSize: stage.style.backgroundSize || '',
+        backgroundPosition: stage.style.backgroundPosition || ''
+      },
+      widgets: Array.from(activeWidgets.entries()).map(([type, data]) => serializeWidget(type, data.el)),
+      stickers: Array.from(document.querySelectorAll('.sticker-floating')).map(serializeSticker),
+      nextPosition: { ...nextPosition }
+    };
+  }
+
+  function updateActiveScreenSnapshot() {
+    if (!activeScreenId || !screens.length || isRestoringState) return;
+    const screen = screens.find(s => s.id === activeScreenId);
+    if (screen) screen.snapshot = captureScreenSnapshot();
+  }
+
+  function clearStageForScreenLoad() {
+    activeWidgets.forEach(({ el, cleanup }, type) => {
+      if (cleanup) cleanup();
+      el.remove();
+      document.querySelector(`[data-widget="${type}"]`)?.classList.remove('active');
+    });
+    activeWidgets.clear();
+    document.querySelectorAll('.sticker-floating').forEach(s => s.remove());
+  }
+
+  function applyScreenSnapshot(snapshot) {
+    isRestoringState = true;
+    clearStageForScreenLoad();
+    const snap = snapshot || createEmptyScreen(1).snapshot;
+    if (snap.stage) {
+      stage.className = snap.stage.className || 'stage bg-bosque';
+      stage.style.backgroundImage = snap.stage.backgroundImage || '';
+      stage.style.backgroundSize = snap.stage.backgroundSize || '';
+      stage.style.backgroundPosition = snap.stage.backgroundPosition || '';
+    }
+    nextPosition = snap.nextPosition || { x: 60, y: 100 };
+    (snap.widgets || []).forEach((widget) => {
+      if (!widgetTemplates[widget.type]) return;
+      toggleWidget(widget.type);
+      const data = activeWidgets.get(widget.type);
+      if (!data) return;
+      const el = data.el;
+      el.style.left = widget.left || el.style.left;
+      el.style.top = widget.top || el.style.top;
+      el.style.width = widget.width || el.style.width;
+      el.style.height = widget.height || el.style.height;
+      el.style.zIndex = widget.zIndex || el.style.zIndex;
+      applyWidgetFields(el, widget.fields);
+    });
+    (snap.stickers || []).forEach(restoreSticker);
+    document.getElementById('welcomeTip')?.classList.add('hide');
+    isRestoringState = false;
+  }
+
+  function getScreenThumbBackground(snapshot) {
+    const st = snapshot?.stage || {};
+    if (st.backgroundImage) return st.backgroundImage;
+    const cls = st.className || '';
+    if (cls.includes('bg-aula')) return "url('https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=400&q=60')";
+    if (cls.includes('bg-mar')) return "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=60')";
+    if (cls.includes('bg-cordillera')) return "url('https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=400&q=60')";
+    if (cls.includes('bg-geometric')) return 'linear-gradient(135deg, #ff6b9d, #ffd43b, #4dabf7)';
+    if (cls.includes('bg-pastel')) return 'linear-gradient(135deg, #fff5f7, #fff8e7, #f0f9ff)';
+    if (cls.includes('bg-pizarra')) return '#2d3748';
+    return "url('https://images.unsplash.com/photo-1448375240586-882707db888b?w=400&q=60')";
+  }
+
+  function renderScreensPanel() {
+    const list = document.getElementById('screensList');
+    if (!list) return;
+    list.innerHTML = screens.map((screen, index) => {
+      const widgets = (screen.snapshot?.widgets || []).slice(0, 4).map(w => getWidgetIcon(widgetTemplates[w.type]?.title)).join(' ');
+      return `
+        <button class="screen-card ${screen.id === activeScreenId ? 'active' : ''}" onclick="switchScreen('${screen.id}')">
+          <div class="screen-thumb" style="background:${getScreenThumbBackground(screen.snapshot)}">${widgets || '▦'}</div>
+          <div class="screen-label">${index + 1} - Screen</div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  function toggleScreensPanel(force) {
+    const panel = document.getElementById('screensPanel');
+    if (!panel) return;
+    const show = typeof force === 'boolean' ? force : !panel.classList.contains('show');
+    panel.classList.toggle('show', show);
+    if (show) renderScreensPanel();
+  }
+
+  function switchScreen(id) {
+    if (id === activeScreenId) return;
+    updateActiveScreenSnapshot();
+    activeScreenId = id;
+    const screen = screens.find(s => s.id === id);
+    applyScreenSnapshot(screen?.snapshot);
+    renderScreensPanel();
+    saveWorkspaceState();
+  }
+
+  function addScreen() {
+    updateActiveScreenSnapshot();
+    const screen = createEmptyScreen(screens.length + 1);
+    screens.push(screen);
+    activeScreenId = screen.id;
+    applyScreenSnapshot(screen.snapshot);
+    renderScreensPanel();
+    saveWorkspaceState();
+  }
+
   function saveWorkspaceState() {
+    updateActiveScreenSnapshot();
     const state = {
       version: 5,
+      build: STORAGE_BUILD,
       savedAt: new Date().toISOString(),
       isPro,
       zCounter,
       nextPosition,
+      activeScreenId,
+      screens,
       stage: {
         className: stage.className,
         backgroundImage: stage.style.backgroundImage || '',
@@ -6018,10 +6370,25 @@
     try {
       const state = JSON.parse(raw);
       if (!state || !Array.isArray(state.widgets)) return false;
+      if ((state.build || 0) < STORAGE_BUILD) {
+        localStorage.removeItem(STORAGE_KEY);
+        return false;
+      }
       isRestoringState = true;
       isPro = !!state.isPro;
       zCounter = state.zCounter || zCounter;
       nextPosition = state.nextPosition || nextPosition;
+
+      if (Array.isArray(state.screens) && state.screens.length) {
+        screens = state.screens;
+        activeScreenId = state.activeScreenId || screens[0].id;
+        const screen = screens.find(s => s.id === activeScreenId) || screens[0];
+        activeScreenId = screen.id;
+        applyScreenSnapshot(screen.snapshot);
+        updatePlanBadge();
+        renderScreensPanel();
+        return true;
+      }
 
       if (state.stage) {
         stage.className = state.stage.className || 'stage bg-bosque';
@@ -6072,8 +6439,17 @@
 
   function initializeWorkspace() {
     if (restoreWorkspaceState()) return;
+    const first = createEmptyScreen(1);
+    screens = [first];
+    activeScreenId = first.id;
+    renderScreensPanel();
     setTimeout(() => toggleWidget('reloj'), 200);
     setTimeout(() => toggleWidget('texto'), 400);
+    setTimeout(() => {
+      updateActiveScreenSnapshot();
+      saveWorkspaceState();
+      renderScreensPanel();
+    }, 700);
   }
 
   function limpiarPizarra() {
@@ -6089,7 +6465,10 @@
     stage.style.backgroundImage = '';
     stage.style.backgroundSize = '';
     stage.style.backgroundPosition = '';
-    localStorage.removeItem(STORAGE_KEY);
+    const screen = screens.find(s => s.id === activeScreenId);
+    if (screen) screen.snapshot = captureScreenSnapshot();
+    saveWorkspaceState();
+    renderScreensPanel();
     showToast('Pizarra limpia');
   }
 
