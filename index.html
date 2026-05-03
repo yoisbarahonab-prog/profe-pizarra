@@ -873,7 +873,7 @@
   .noise-counter-label {
     font-size: 11px;
     color: var(--ink-soft);
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
   .bell-icon {
     font-size: 28px;
@@ -898,6 +898,29 @@
     border-radius: 10px;
     border: 2px dashed var(--accent-6);
     transition: transform 0.2s;
+  }
+  .noise-compact-tools {
+    display: grid;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .noise-advanced-toggle {
+    border: none;
+    background: #f1f5f9;
+    color: var(--ink);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .noise-advanced {
+    display: none;
+    gap: 8px;
+  }
+  .noise-advanced.show {
+    display: grid;
   }
   .challenge-title {
     font-family: 'Fraunces', serif;
@@ -3552,33 +3575,22 @@
           <div class="mic-help" style="font-size:10px; color:var(--ink-soft); margin-top:6px; line-height:1.35;"></div>
           <div class="noise-live-status" style="font-size:10px; color:var(--ink); margin-top:4px; font-weight:700;">Nivel: 0%</div>
 
-          <div class="noise-extra-controls" style="display:none; margin-top:8px;">
+          <div class="noise-compact-tools">
+            <div style="display:flex; gap:6px; align-items:center; justify-content:center;">
+              <span style="font-size:10px; color:var(--ink-soft);">Sensibilidad:</span>
+              <input type="range" min="5" max="65" value="24" class="threshold-slider" style="flex:1; max-width:130px;">
+              <span class="threshold-value" style="font-size:10px; font-weight:700;">24%</span>
+            </div>
+            <button class="noise-advanced-toggle" type="button">Opciones</button>
+          </div>
+
+          <div class="noise-extra-controls noise-advanced">
             <select class="mic-select" title="Seleccionar micrófono" style="width:100%; margin-bottom:8px; padding:7px 8px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:11px;">
               <option value="">Micrófono predeterminado</option>
             </select>
             <div style="display:flex; gap:6px; justify-content:center; align-items:center; flex-wrap:wrap;">
               <button class="icon-btn mute-btn" title="Silenciar campanilla" aria-label="Silenciar campanilla">🔊</button>
               <button class="icon-btn danger pause-btn" title="Pausar detección" aria-label="Pausar detección">⏸</button>
-            </div>
-            <div style="display:flex; gap:6px; align-items:center; justify-content:center; margin-top:8px;">
-              <span style="font-size:10px; color:var(--ink-soft);">Sensibilidad:</span>
-              <input type="range" min="5" max="65" value="24" class="threshold-slider" style="flex:1; max-width:120px;">
-              <span class="threshold-value" style="font-size:10px; font-weight:700;">24%</span>
-            </div>
-          </div>
-
-          <div class="challenge-box">
-            <div class="challenge-title">
-              <span>🎯</span>
-              <span class="challenge-title-text" contenteditable="true" spellcheck="false">Desafío de la clase</span>
-              <button class="challenge-edit-btn" title="Editar desafío">✏️</button>
-            </div>
-            <div class="challenge-text" contenteditable="true" spellcheck="false">¿Pueden trabajar 15 min sin que suene la campanilla más de <strong>3 veces</strong>?</div>
-            <div class="challenge-presets">
-              <button class="challenge-preset" data-preset="silencio">🤫 Silencio</button>
-              <button class="challenge-preset" data-preset="trabajo">📚 Trabajo</button>
-              <button class="challenge-preset" data-preset="prueba">📝 Prueba</button>
-              <button class="challenge-preset" data-preset="lectura">📖 Lectura</button>
             </div>
           </div>
         </div>
@@ -3677,6 +3689,7 @@
         // Botón micrófono
         const micBtn = root.querySelector('.mic-btn');
         const extraControls = root.querySelector('.noise-extra-controls');
+        const advancedToggle = root.querySelector('.noise-advanced-toggle');
         const muteBtn = root.querySelector('.mute-btn');
         const pauseBtn = root.querySelector('.pause-btn');
         const slider = root.querySelector('.threshold-slider');
@@ -3763,7 +3776,8 @@
           micBtn.textContent = '🎤';
           micBtn.title = 'Activar micrófono';
           micBtn.classList.add('primary');
-          extraControls.style.display = 'none';
+          extraControls.classList.remove('show');
+          advancedToggle.textContent = 'Opciones';
         };
 
         micBtn.addEventListener('click', async () => {
@@ -3828,7 +3842,7 @@
             micBtn.textContent = '■';
             micBtn.title = 'Detener detección';
             micBtn.classList.remove('primary');
-            extraControls.style.display = 'block';
+            extraControls.classList.add('show');
             updateMicHelp('');
             showToast('🎤 Detector activado');
           } catch (err) {
@@ -3877,68 +3891,6 @@
           count = 0;
           counter.textContent = 0;
           showToast('↺ Contador reiniciado');
-        });
-
-        // ===== DESAFÍO EDITABLE =====
-        const challengeTitle = root.querySelector('.challenge-title-text');
-        const challengeText = root.querySelector('.challenge-text');
-        const editBtn = root.querySelector('.challenge-edit-btn');
-
-        // Botón ✏️ pone foco directo en el texto del desafío
-        editBtn.addEventListener('click', () => {
-          challengeText.focus();
-          // seleccionar todo el contenido al hacer clic en el lápiz
-          const range = document.createRange();
-          range.selectNodeContents(challengeText);
-          const sel = window.getSelection();
-          sel.removeAllRanges();
-          sel.addRange(range);
-        });
-
-        // Que Enter no rompa el editable, solo confirme
-        challengeText.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            challengeText.blur();
-            showToast('✓ Desafío actualizado');
-          }
-        });
-        challengeTitle.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            challengeTitle.blur();
-          }
-        });
-
-        // Presets de desafío
-        const presets = {
-          silencio: {
-            title: 'Reto de silencio',
-            text: '¿Pueden estar <strong>5 minutos</strong> en silencio absoluto sin que suene la campanilla?'
-          },
-          trabajo: {
-            title: 'Trabajo concentrado',
-            text: '¿Pueden trabajar <strong>15 minutos</strong> sin que suene la campanilla más de <strong>3 veces</strong>?'
-          },
-          prueba: {
-            title: 'Modo prueba',
-            text: '⚠️ Estamos en prueba. La campanilla NO debe sonar ni una sola vez 🔕'
-          },
-          lectura: {
-            title: 'Hora de lectura',
-            text: '📖 Lectura silenciosa por <strong>20 minutos</strong>. Cada campanazo nos quita 1 minuto del recreo 😬'
-          }
-        };
-        root.querySelectorAll('.challenge-preset').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const preset = presets[btn.dataset.preset];
-            challengeTitle.textContent = preset.title;
-            challengeText.innerHTML = preset.text;
-            // breve animación de feedback
-            const box = root.querySelector('.challenge-box');
-            box.style.transform = 'scale(1.03)';
-            setTimeout(() => box.style.transform = '', 200);
-          });
         });
 
         return () => {
@@ -6598,3 +6550,7 @@
 
 </body>
 </html>
+        advancedToggle.addEventListener('click', () => {
+          extraControls.classList.toggle('show');
+          advancedToggle.textContent = extraControls.classList.contains('show') ? 'Ocultar opciones' : 'Opciones';
+        });
