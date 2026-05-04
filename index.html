@@ -233,6 +233,10 @@
   }
   .dock-btn:hover { background: #f1f5f9; transform: translateY(-2px); }
   .dock-btn.active { background: var(--accent-3); }
+  .dock-btn.annotation-active {
+    background: var(--accent);
+    color: white;
+  }
   .dock-icon {
     font-size: 22px;
     line-height: 1;
@@ -380,6 +384,7 @@
   .widget[data-type="checklist"] .widget-handle { background: linear-gradient(135deg, #ffd43b, #51cf66); }
   .widget[data-type="dibujo"] .widget-handle { background: linear-gradient(135deg, #a78bfa, #ff6b9d); }
   .widget[data-type="horario"] .widget-handle { background: linear-gradient(135deg, #4dabf7, #a78bfa); }
+  .widget[data-type="documento"] .widget-handle { background: linear-gradient(135deg, #1f2937, #4dabf7); color: white; }
   .widget[data-type="ruido"] .widget-handle { background: linear-gradient(135deg, #ff6b9d, #a78bfa); }
   .widget[data-type="qr"] .widget-handle { background: linear-gradient(135deg, #1f2937, #4dabf7); color: white; }
   .widget[data-type="qr"] .widget-handle .widget-title { color: white; }
@@ -797,37 +802,108 @@
     touch-action: none;
     border: 1px solid #e5e7eb;
   }
+  .annotation-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 58;
+    pointer-events: none;
+    touch-action: none;
+  }
+  body.annotation-mode .annotation-canvas {
+    pointer-events: auto;
+    cursor: crosshair;
+  }
+  .annotation-toolbar {
+    position: fixed;
+    left: 50%;
+    top: 86px;
+    transform: translateX(-50%);
+    z-index: 70;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(14px);
+  }
+  body.annotation-mode .annotation-toolbar {
+    display: flex;
+  }
+  .annotation-toolbar strong {
+    font-size: 12px;
+    color: var(--ink);
+  }
+  .annotation-color {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+    cursor: pointer;
+  }
+  .annotation-color.active {
+    box-shadow: 0 0 0 2px white, 0 0 0 4px var(--ink);
+  }
+  .annotation-toolbar input[type="range"] {
+    width: 90px;
+  }
 
   /* ==== HORARIO ==== */
   .schedule {
     display: grid;
-    grid-template-columns: 50px repeat(5, 1fr);
-    gap: 3px;
-    font-size: 10px;
+    grid-template-columns: 82px 1fr;
+    gap: 6px;
+    font-size: 12px;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 8px;
   }
   .schedule-cell {
-    padding: 5px 4px;
+    padding: 0;
     background: white;
-    border-radius: 4px;
+    border-radius: 8px;
     text-align: center;
-    min-height: 28px;
+    min-height: 34px;
     display: flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
     font-weight: 500;
+    border: 1px solid transparent;
   }
   .schedule-cell.header {
     background: var(--ink);
     color: white;
     font-family: 'Fraunces', serif;
     font-weight: 700;
-    cursor: default;
+    padding: 8px 6px;
   }
   .schedule-cell.time-label {
     background: var(--accent-3);
     font-weight: 700;
-    cursor: default;
+  }
+  .schedule-cell input {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    text-align: center;
+    color: var(--ink);
+    font: inherit;
+    font-weight: 700;
+    padding: 7px 6px;
+  }
+  .schedule-subject input {
+    text-align: left;
+    font-weight: 600;
+  }
+  .schedule-cell:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.15);
   }
   .schedule-cell.subj-mat { background: #ffd6e0; }
   .schedule-cell.subj-len { background: #d0ebff; }
@@ -835,6 +911,65 @@
   .schedule-cell.subj-his { background: #fff3bf; }
   .schedule-cell.subj-art { background: #e5dbff; }
   .schedule-cell.empty { background: #f8f9fa; color: #adb5bd; font-style: italic; }
+  .daily-start {
+    display: grid;
+    gap: 10px;
+  }
+  .daily-start-title {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .daily-phrase-card {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fff7ed, #fff1f2);
+    border: 1px solid rgba(255, 146, 43, 0.25);
+  }
+  .daily-phrase-card textarea,
+  .daily-phrase-card input {
+    width: 100%;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 9px 10px;
+    font: inherit;
+    color: var(--ink);
+    background: rgba(255,255,255,0.92);
+    outline: none;
+  }
+  .daily-phrase-card textarea {
+    min-height: 74px;
+    resize: vertical;
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.25;
+  }
+  .daily-image-preview {
+    min-height: 72px;
+    border-radius: 10px;
+    border: 1px dashed rgba(31, 41, 55, 0.18);
+    background: rgba(255,255,255,0.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .daily-image-preview.has-image {
+    display: flex;
+  }
+  .daily-image-preview img {
+    width: 100%;
+    max-height: 130px;
+    object-fit: cover;
+    display: block;
+  }
 
   /* ==== MEDIDOR DE RUIDO + CAMPANILLA ==== */
   .noise-display {
@@ -1295,24 +1430,30 @@
   /* ==== STICKERS ==== */
   .stickers-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 6px;
-    max-height: 220px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: 260px;
     overflow-y: auto;
   }
   .sticker-item {
-    aspect-ratio: 1;
-    background: #f8f9fa;
-    border-radius: 8px;
+    min-height: 54px;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    gap: 7px;
+    padding: 8px;
+    font-size: 11px;
+    font-weight: 800;
     cursor: grab;
     transition: transform 0.15s;
+    text-align: center;
+    color: var(--ink);
   }
+  .sticker-item-icon { font-size: 21px; line-height: 1; }
+  .sticker-item-text { line-height: 1.05; }
   .sticker-item:hover {
-    background: var(--accent-3);
     transform: scale(1.1);
   }
   .sticker-item:active { cursor: grabbing; }
@@ -1339,12 +1480,28 @@
   }
   .sticker-floating {
     position: absolute;
-    font-size: 60px;
+    min-width: 120px;
+    max-width: 260px;
+    padding: 14px 18px;
+    border-radius: 18px;
+    border: 3px solid white;
+    color: var(--ink);
+    font-size: 18px;
+    font-weight: 900;
     cursor: grab;
     user-select: none;
     z-index: 15;
-    line-height: 1;
-    text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    line-height: 1.05;
+    text-align: center;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+  }
+  .sticker-floating-icon {
+    display: block;
+    font-size: 32px;
+    margin-bottom: 5px;
+  }
+  .sticker-floating-text {
+    display: block;
   }
   .sticker-floating:hover { transform: scale(1.05); }
   .sticker-floating .sticker-x {
@@ -1390,6 +1547,68 @@
     gap: 6px;
     justify-content: center;
     flex-wrap: wrap;
+  }
+
+  /* ==== DOCUMENTO ==== */
+  .document-widget {
+    display: grid;
+    gap: 8px;
+  }
+  .document-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+  }
+  .document-stage {
+    min-height: 260px;
+    max-height: 520px;
+    overflow: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    background: #f8fafc;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px;
+  }
+  .document-empty {
+    width: 100%;
+    min-height: 240px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    color: var(--ink-soft);
+    font-weight: 700;
+    padding: 20px;
+  }
+  .document-preview {
+    transform-origin: top center;
+    transition: transform 0.15s ease;
+    max-width: none;
+    background: white;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+  }
+  .document-preview img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  .document-preview iframe {
+    width: 720px;
+    height: 460px;
+    border: 0;
+    display: block;
+    background: white;
+  }
+  .document-note {
+    font-size: 11px;
+    line-height: 1.35;
+    color: var(--ink-soft);
+    text-align: center;
   }
 
   /* ==== HIPERVÍNCULO ==== */
@@ -2691,6 +2910,7 @@
   body.exporting .bottom-dock,
   body.exporting .screens-panel,
   body.exporting .screens-tab,
+  body.exporting .annotation-toolbar,
   body.exporting .welcome-tip,
   body.exporting .toast {
     display: none !important;
@@ -2851,6 +3071,17 @@
 
 <!-- FONDO -->
 <div class="stage bg-bosque" id="stage"></div>
+<canvas class="annotation-canvas" id="annotationCanvas"></canvas>
+<div class="annotation-toolbar" id="annotationToolbar">
+  <strong>Pulsor</strong>
+  <button class="annotation-color active" style="background:#ff2f92" data-color="#ff2f92" title="Rosado"></button>
+  <button class="annotation-color" style="background:#1f2937" data-color="#1f2937" title="Negro"></button>
+  <button class="annotation-color" style="background:#2563eb" data-color="#2563eb" title="Azul"></button>
+  <button class="annotation-color" style="background:#f97316" data-color="#f97316" title="Naranjo"></button>
+  <input type="range" id="annotationSize" min="3" max="18" value="6" title="Grosor">
+  <button class="btn-mini" onclick="clearAnnotationCanvas()">Limpiar</button>
+  <button class="btn-mini primary" onclick="toggleAnnotationMode(false)">Listo</button>
+</div>
 
 <!-- PANEL DE PANTALLAS -->
 <button class="screens-tab" onclick="toggleScreensPanel()" title="Pantallas">▦</button>
@@ -2972,6 +3203,10 @@
     <span class="dock-icon">✏️</span>
     <span>Dibujo</span>
   </button>
+  <button class="dock-btn" onclick="toggleAnnotationMode()" id="annotationDockBtn">
+    <span class="dock-icon">🖊️</span>
+    <span>Rayar</span>
+  </button>
   <button class="dock-btn" onclick="toggleWidget('hojas')" data-widget="hojas">
     <span class="dock-icon">📋</span>
     <span>Hojas</span>
@@ -2979,6 +3214,10 @@
   <button class="dock-btn" onclick="toggleWidget('imagen')" data-widget="imagen">
     <span class="dock-icon">🖼️</span>
     <span>Imagen</span>
+  </button>
+  <button class="dock-btn" onclick="toggleWidget('documento')" data-widget="documento">
+    <span class="dock-icon">📄</span>
+    <span>Doc</span>
   </button>
   <button class="dock-btn" onclick="toggleWidget('stickers')" data-widget="stickers">
     <span class="dock-icon">⭐</span>
@@ -3030,6 +3269,7 @@
         <div class="panel-item" onclick="addFromPanel('dibujo')"><div class="panel-icon">✏️</div><div>Pizarra</div></div>
         <div class="panel-item" onclick="addFromPanel('hojas')"><div class="panel-icon">📋</div><div>Hojas</div></div>
         <div class="panel-item" onclick="addFromPanel('imagen')"><div class="panel-icon">🖼️</div><div>Imagen</div></div>
+        <div class="panel-item" onclick="addFromPanel('documento')"><div class="panel-icon">📄</div><div>Documento</div></div>
         <div class="panel-item" onclick="addFromPanel('stickers')"><div class="panel-icon">⭐</div><div>Stickers</div></div>
         <div class="panel-item" onclick="addFromPanel('hipervinculo')"><div class="panel-icon">🔗</div><div>Hipervínculo</div></div>
       </div>
@@ -3132,6 +3372,8 @@
      SISTEMA DE WIDGETS FLOTANTES
      ================================================= */
   const stage = document.getElementById('stage');
+  const annotationCanvas = document.getElementById('annotationCanvas');
+  const annotationCtx = annotationCanvas.getContext('2d');
   const activeWidgets = new Map();
   let zCounter = 10;
   let nextPosition = { x: 60, y: 100 };
@@ -3142,6 +3384,11 @@
   let saveTimer = null;
   let screens = [];
   let activeScreenId = null;
+  let annotationColor = '#ff2f92';
+  let annotationSize = 6;
+  let annotationDrawing = false;
+  let annotationHasInk = false;
+  let annotationLast = { x: 0, y: 0 };
 
   // Templates de cada widget (HTML del cuerpo)
   const widgetTemplates = {
@@ -3494,48 +3741,59 @@
 
     horario: {
       title: '📅 Horario',
-      width: 380,
-      body: () => `<div class="schedule"></div>`,
+      width: 430,
+      body: () => `
+        <div class="daily-start">
+          <div class="daily-start-title">📅 Horario de hoy</div>
+          <div class="schedule">
+            <div class="schedule-cell header">Hora</div>
+            <div class="schedule-cell header">Asignatura / actividad</div>
+            ${[
+              ['08:00', 'Lenguaje'],
+              ['09:00', 'Matemática'],
+              ['10:00', 'Recreo'],
+              ['11:00', 'Ciencias'],
+              ['12:00', 'Almuerzo'],
+              ['13:00', 'Historia'],
+              ['14:00', 'Arte'],
+              ['15:00', 'Salida']
+            ].map((row, i) => `
+              <div class="schedule-cell time-label"><input aria-label="Hora ${i + 1}" value="${row[0]}"></div>
+              <div class="schedule-cell schedule-subject ${i % 5 === 0 ? 'subj-len' : i % 5 === 1 ? 'subj-mat' : i % 5 === 2 ? 'subj-his' : i % 5 === 3 ? 'subj-cie' : 'subj-art'}"><input aria-label="Asignatura ${i + 1}" value="${row[1]}"></div>
+            `).join('')}
+          </div>
+          <div class="daily-phrase-card">
+            <div class="daily-start-title">🌞 Frase positiva para iniciar el día</div>
+            <textarea class="daily-phrase" aria-label="Frase positiva">Hoy es una nueva oportunidad para aprender, intentarlo y brillar.</textarea>
+            <input class="daily-image-url" aria-label="Imagen para la frase" placeholder="Pega URL directa de imagen de Pinterest u otra web">
+            <div class="daily-image-preview"></div>
+          </div>
+        </div>
+      `,
       onInit: (root) => {
-        const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
-        const times = ['08:00', '09:00', '10:00', '11:00', '12:00'];
-        const schedule = [
-          ['Mat', 'Lenguaje', 'Mat', 'Ciencias', 'Lenguaje'],
-          ['Lenguaje', 'Mat', 'Inglés', 'Mat', 'Mat'],
-          ['Recreo', 'Recreo', 'Recreo', 'Recreo', 'Recreo'],
-          ['Historia', 'Arte', 'Ciencias', 'Ed.Física', 'Historia'],
-          ['Almuerzo', 'Almuerzo', 'Almuerzo', 'Almuerzo', 'Almuerzo']
-        ];
-        const subjClass = (txt) => {
-          const t = txt.toLowerCase();
-          if (t.startsWith('mat')) return 'subj-mat';
-          if (t.startsWith('len')) return 'subj-len';
-          if (t.startsWith('cie')) return 'subj-cie';
-          if (t.startsWith('hist')) return 'subj-his';
-          if (t.startsWith('art') || t.startsWith('mús') || t.startsWith('ed')) return 'subj-art';
-          return txt ? '' : 'empty';
-        };
-        const render = () => {
-          const sch = root.querySelector('.schedule');
-          let html = '<div class="schedule-cell header">Hora</div>';
-          days.forEach(d => html += `<div class="schedule-cell header">${d}</div>`);
-          times.forEach((time, ti) => {
-            html += `<div class="schedule-cell time-label">${time}</div>`;
-            days.forEach((d, di) => {
-              const txt = schedule[ti][di] || '';
-              html += `<div class="schedule-cell ${subjClass(txt)}" data-row="${ti}" data-col="${di}">${txt || '+'}</div>`;
-            });
+        const preview = root.querySelector('.daily-image-preview');
+        const imageInput = root.querySelector('.daily-image-url');
+        const updatePreview = () => {
+          const url = imageInput.value.trim();
+          if (!url) {
+            preview.classList.remove('has-image');
+            preview.innerHTML = '';
+            return;
+          }
+          const img = document.createElement('img');
+          img.alt = 'Imagen de frase positiva';
+          img.src = url;
+          img.addEventListener('error', () => {
+            preview.classList.remove('has-image');
+            img.remove();
           });
-          sch.innerHTML = html;
-          sch.querySelectorAll('[data-row]').forEach(c => {
-            c.addEventListener('click', () => {
-              const r = parseInt(c.dataset.row), col = parseInt(c.dataset.col);
-              const v = prompt(`${days[col]} a las ${times[r]}:`, schedule[r][col] || '');
-              if (v !== null) { schedule[r][col] = v.trim(); render(); }
-            });
-          });
+          preview.innerHTML = '';
+          preview.appendChild(img);
+          preview.classList.add('has-image');
         };
-        render();
+        imageInput.addEventListener('input', updatePreview);
+        imageInput.addEventListener('change', updatePreview);
+        updatePreview();
       }
     },
 
@@ -3988,11 +4246,9 @@
       width: 280,
       body: () => `
         <div class="sticker-cat">
-          <button class="sticker-cat-btn active" data-cat="profe">Profe</button>
-          <button class="sticker-cat-btn" data-cat="emociones">Emociones</button>
-          <button class="sticker-cat-btn" data-cat="animales">Animales</button>
-          <button class="sticker-cat-btn" data-cat="comida">Comida</button>
-          <button class="sticker-cat-btn" data-cat="naturaleza">Naturaleza</button>
+          <button class="sticker-cat-btn active" data-cat="sellos">Sellos</button>
+          <button class="sticker-cat-btn" data-cat="aula">Aula</button>
+          <button class="sticker-cat-btn" data-cat="animo">Ánimo</button>
           <button class="sticker-cat-btn" data-cat="chile">Chile</button>
         </div>
         <div class="stickers-grid"></div>
@@ -4000,20 +4256,64 @@
       `,
       onInit: (root) => {
         const stickers = {
-          profe: ['📚','✏️','📝','📖','🎒','📐','📏','🖍️','🖊️','✂️','📎','📌','🧮','🗒️','🎨','🔬','🧪','🌍','🗺️','📓','📒','📔','📕','📗','📘','📙','🏫','🎓'],
-          emociones: ['😀','😊','🥰','😍','🤩','😎','🥳','🤗','😂','🙃','😴','🤔','😮','😯','🤯','😱','😭','😢','😡','😤','😅','😬','🥺','😇','🤓','🧐','🙄','😏'],
-          animales: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🐔','🐧','🐦','🦆','🦅','🦉','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐢','🐠','🐳','🦈'],
-          comida: ['🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🥝','🍒','🍑','🥭','🍍','🥥','🍅','🥑','🌽','🥕','🌶️','🥔','🍠','🥐','🍞','🥖','🧀','🍳','🥞','🥪','🌮','🍕','🍔','🍟','🌭','🍿','🍪','🍩','🍰','🎂','🧁','🍫','🍬','🍭'],
-          naturaleza: ['🌳','🌲','🌴','🌵','🌷','🌸','🌹','🌺','🌻','🌼','🌽','🍀','🍁','🍂','🍃','🌿','🌾','🌱','🌍','🌎','🌏','🌕','🌙','⭐','🌟','✨','💫','☀️','🌤️','⛅','🌧️','⛈️','🌈','❄️','⛄','🔥','💧','🌊'],
-          chile: ['🇨🇱','⛰️','🏔️','🌋','🍷','🥟','🌽','🇨🇱','🇨🇱','⚽','🎻','💃','🎉','🎊','🎈','🎁','🏖️','🏝️','🌊','🏛️','🐎','🦙','🌶️','🥑','🍇','🐧','🦅']
+          sellos: [
+            { icon:'⭐', text:'Excelente', bg:'#fff3bf' },
+            { icon:'✅', text:'Logrado', bg:'#d3f9d8' },
+            { icon:'👏', text:'Buen trabajo', bg:'#d0ebff' },
+            { icon:'🏆', text:'Meta cumplida', bg:'#ffe5ec' },
+            { icon:'💡', text:'Gran idea', bg:'#e5dbff' },
+            { icon:'📌', text:'Importante', bg:'#ffd8a8' },
+            { icon:'🔎', text:'Revisar', bg:'#e7f5ff' },
+            { icon:'✨', text:'Mejoró mucho', bg:'#fff0f6' }
+          ],
+          aula: [
+            { icon:'🤫', text:'Silencio', bg:'#e9ecef' },
+            { icon:'✋', text:'Levanta la mano', bg:'#fff3bf' },
+            { icon:'👥', text:'Trabajo en equipo', bg:'#d3f9d8' },
+            { icon:'⏱️', text:'Tiempo restante', bg:'#d0ebff' },
+            { icon:'📖', text:'Lectura', bg:'#e5dbff' },
+            { icon:'📝', text:'Anota esto', bg:'#ffe5ec' },
+            { icon:'🎯', text:'Objetivo', bg:'#ffd8a8' },
+            { icon:'🧠', text:'Piensa primero', bg:'#e7f5ff' }
+          ],
+          animo: [
+            { icon:'💪', text:'Tú puedes', bg:'#d3f9d8' },
+            { icon:'🌱', text:'Sigue creciendo', bg:'#e6fcf5' },
+            { icon:'😊', text:'Buen intento', bg:'#fff3bf' },
+            { icon:'🚀', text:'Vamos por más', bg:'#d0ebff' },
+            { icon:'❤️', text:'Con calma', bg:'#ffe5ec' },
+            { icon:'🎉', text:'Celebramos', bg:'#fff0f6' },
+            { icon:'🤝', text:'Ayuda a otro', bg:'#e5dbff' },
+            { icon:'🔁', text:'Intenta otra vez', bg:'#e7f5ff' }
+          ],
+          chile: [
+            { icon:'🇨🇱', text:'Chile', bg:'#d0ebff' },
+            { icon:'🥟', text:'Modo 18', bg:'#fff3bf' },
+            { icon:'🏔️', text:'Cordillera', bg:'#e7f5ff' },
+            { icon:'🌊', text:'Costa', bg:'#d0ebff' },
+            { icon:'🦙', text:'Norte', bg:'#fff0f6' },
+            { icon:'🐧', text:'Sur', bg:'#e6fcf5' },
+            { icon:'💃', text:'Cueca', bg:'#ffe5ec' },
+            { icon:'⚽', text:'Recreo', bg:'#d3f9d8' }
+          ]
         };
-        let currentCat = 'profe';
+        let currentCat = 'sellos';
         const grid = root.querySelector('.stickers-grid');
+        const stickerMarkup = (s) => `
+          <div class="sticker-item" style="background:${s.bg}" data-icon="${s.icon}" data-text="${s.text}" data-bg="${s.bg}">
+            <span class="sticker-item-icon">${s.icon}</span>
+            <span class="sticker-item-text">${s.text}</span>
+          </div>
+        `;
         const renderStickers = () => {
-          grid.innerHTML = stickers[currentCat].map(s => `<div class="sticker-item">${s}</div>`).join('');
+          grid.innerHTML = stickers[currentCat].map(stickerMarkup).join('');
           grid.querySelectorAll('.sticker-item').forEach(it => {
             it.addEventListener('click', () => {
-              addStickerToStage(it.textContent);
+              addStickerToStage({
+                icon: it.dataset.icon,
+                text: it.dataset.text,
+                bg: it.dataset.bg
+              });
             });
           });
         };
@@ -4070,6 +4370,75 @@
           const url = prompt('Pega la URL de la imagen:');
           if (url) showImage(url);
         });
+      }
+    },
+
+    documento: {
+      title: '📄 Documento',
+      width: 760,
+      body: () => `
+        <div class="document-widget">
+          <div class="document-actions">
+            <button class="btn-mini primary doc-upload-btn">📁 Subir PDF o imagen</button>
+            <button class="btn-mini doc-zoom-out">−</button>
+            <span class="doc-zoom-label">100%</span>
+            <button class="btn-mini doc-zoom-in">+</button>
+            <button class="btn-mini" onclick="toggleAnnotationMode(true)">🖊️ Rayar encima</button>
+          </div>
+          <div class="document-stage">
+            <div class="document-empty">📄 Sube un PDF o una imagen para proyectarla, agrandarla y rayar encima.</div>
+          </div>
+          <p class="document-note">Para Word o PowerPoint, conviene exportar a PDF antes de subirlo para que se vea bien en todos los navegadores.</p>
+          <input type="file" class="doc-file-input" accept="application/pdf,image/*" style="display:none;">
+        </div>
+      `,
+      onInit: (root) => {
+        const fileInput = root.querySelector('.doc-file-input');
+        const stageEl = root.querySelector('.document-stage');
+        const zoomLabel = root.querySelector('.doc-zoom-label');
+        let zoom = 1;
+        let currentUrl = '';
+
+        const applyZoom = () => {
+          const preview = root.querySelector('.document-preview');
+          if (preview) preview.style.transform = `scale(${zoom})`;
+          zoomLabel.textContent = `${Math.round(zoom * 100)}%`;
+        };
+        const showDocument = (file) => {
+          if (currentUrl) URL.revokeObjectURL(currentUrl);
+          currentUrl = URL.createObjectURL(file);
+          zoom = 1;
+          const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+          stageEl.innerHTML = `
+            <div class="document-preview">
+              ${isPdf
+                ? `<iframe src="${currentUrl}" title="Documento proyectado"></iframe>`
+                : `<img src="${currentUrl}" alt="Documento proyectado">`
+              }
+            </div>
+          `;
+          applyZoom();
+          showToast('📄 Documento cargado');
+        };
+
+        root.querySelector('.doc-upload-btn').addEventListener('click', () => fileInput.click());
+        root.querySelector('.doc-zoom-in').addEventListener('click', () => {
+          zoom = Math.min(2.5, zoom + 0.15);
+          applyZoom();
+        });
+        root.querySelector('.doc-zoom-out').addEventListener('click', () => {
+          zoom = Math.max(0.5, zoom - 0.15);
+          applyZoom();
+        });
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          showDocument(file);
+          e.target.value = '';
+        });
+        return () => {
+          if (currentUrl) URL.revokeObjectURL(currentUrl);
+        };
       }
     },
 
@@ -4506,20 +4875,16 @@
 
         const SVGS = {
           cuadriculada: () => {
-            // Hoja cuadriculada estilo matemáticas (cuadrícula 1cm)
+            // Hoja cuadriculada tipo cuaderno: líneas finas, parejas y suaves.
             return `
               <svg viewBox="0 0 480 320" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
                 <defs>
-                  <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#a8d8ff" stroke-width="0.5"/>
-                  </pattern>
-                  <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
-                    <rect width="100" height="100" fill="url(#smallGrid)"/>
-                    <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#5aa8e0" stroke-width="1.2"/>
+                  <pattern id="notebookGrid" width="16" height="16" patternUnits="userSpaceOnUse">
+                    <path d="M 16 0 L 0 0 0 16" fill="none" stroke="#d6dee8" stroke-width="0.65"/>
                   </pattern>
                 </defs>
-                <rect width="100%" height="100%" fill="white"/>
-                <rect width="100%" height="100%" fill="url(#grid)"/>
+                <rect width="100%" height="100%" fill="#fffef8"/>
+                <rect width="100%" height="100%" fill="url(#notebookGrid)"/>
               </svg>
             `;
           },
@@ -5550,6 +5915,98 @@
     handle.addEventListener('touchstart', onDown);
   }
 
+  /* ============== RAYADO SOBRE PROYECCION ============== */
+  function resizeAnnotationCanvas() {
+    const old = document.createElement('canvas');
+    old.width = annotationCanvas.width;
+    old.height = annotationCanvas.height;
+    if (old.width && old.height) old.getContext('2d').drawImage(annotationCanvas, 0, 0);
+    annotationCanvas.width = window.innerWidth;
+    annotationCanvas.height = window.innerHeight;
+    annotationCtx.lineCap = 'round';
+    annotationCtx.lineJoin = 'round';
+    if (old.width && old.height) annotationCtx.drawImage(old, 0, 0);
+  }
+  function annotationPoint(e) {
+    const evt = e.touches ? e.touches[0] : e;
+    return { x: evt.clientX, y: evt.clientY };
+  }
+  function startAnnotation(e) {
+    if (!document.body.classList.contains('annotation-mode')) return;
+    e.preventDefault();
+    annotationDrawing = true;
+    annotationLast = annotationPoint(e);
+  }
+  function drawAnnotation(e) {
+    if (!annotationDrawing) return;
+    e.preventDefault();
+    const p = annotationPoint(e);
+    annotationCtx.strokeStyle = annotationColor;
+    annotationCtx.lineWidth = annotationSize;
+    annotationCtx.beginPath();
+    annotationCtx.moveTo(annotationLast.x, annotationLast.y);
+    annotationCtx.lineTo(p.x, p.y);
+    annotationCtx.stroke();
+    annotationHasInk = true;
+    annotationLast = p;
+  }
+  function stopAnnotation() {
+    if (!annotationDrawing) return;
+    annotationDrawing = false;
+    scheduleSaveState();
+  }
+  function toggleAnnotationMode(force) {
+    const enabled = typeof force === 'boolean' ? force : !document.body.classList.contains('annotation-mode');
+    document.body.classList.toggle('annotation-mode', enabled);
+    document.getElementById('annotationDockBtn')?.classList.toggle('annotation-active', enabled);
+    if (enabled) {
+      resizeAnnotationCanvas();
+      showToast('🖊️ Pulsor activo: puedes rayar sobre la proyección');
+    }
+  }
+  function clearAnnotationCanvas() {
+    annotationCtx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+    annotationHasInk = false;
+    scheduleSaveState();
+  }
+  function getAnnotationData() {
+    if (!annotationHasInk) return '';
+    try {
+      return annotationCanvas.toDataURL('image/png');
+    } catch (error) {
+      return '';
+    }
+  }
+  function restoreAnnotationData(src) {
+    clearAnnotationCanvas();
+    if (!src) return;
+    const img = new Image();
+    img.onload = () => {
+      annotationCtx.drawImage(img, 0, 0);
+      annotationHasInk = true;
+    };
+    img.src = src;
+  }
+  resizeAnnotationCanvas();
+  window.addEventListener('resize', resizeAnnotationCanvas);
+  annotationCanvas.addEventListener('mousedown', startAnnotation);
+  annotationCanvas.addEventListener('mousemove', drawAnnotation);
+  annotationCanvas.addEventListener('mouseup', stopAnnotation);
+  annotationCanvas.addEventListener('mouseleave', stopAnnotation);
+  annotationCanvas.addEventListener('touchstart', startAnnotation, { passive: false });
+  annotationCanvas.addEventListener('touchmove', drawAnnotation, { passive: false });
+  annotationCanvas.addEventListener('touchend', stopAnnotation);
+  document.getElementById('annotationSize')?.addEventListener('input', (e) => {
+    annotationSize = Number(e.target.value) || 6;
+  });
+  document.querySelectorAll('.annotation-color').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.annotation-color').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      annotationColor = btn.dataset.color || '#ff2f92';
+    });
+  });
+
   /* ============== FONDO ============== */
   function toggleTopMenu(event) {
     if (event) event.stopPropagation();
@@ -6110,6 +6567,7 @@
         },
         widgets: [],
         stickers: [],
+        annotations: '',
         nextPosition: { x: 60, y: 100 }
       }
     };
@@ -6125,6 +6583,7 @@
       },
       widgets: Array.from(activeWidgets.entries()).map(([type, data]) => serializeWidget(type, data.el)),
       stickers: Array.from(document.querySelectorAll('.sticker-floating')).map(serializeSticker),
+      annotations: getAnnotationData(),
       nextPosition: { ...nextPosition }
     };
   }
@@ -6143,6 +6602,7 @@
     });
     activeWidgets.clear();
     document.querySelectorAll('.sticker-floating').forEach(s => s.remove());
+    clearAnnotationCanvas();
   }
 
   function applyScreenSnapshot(snapshot) {
@@ -6155,6 +6615,7 @@
       stage.style.backgroundSize = snap.stage.backgroundSize || '';
       stage.style.backgroundPosition = snap.stage.backgroundPosition || '';
     }
+    restoreAnnotationData(snap.annotations || '');
     nextPosition = snap.nextPosition || { x: 60, y: 100 };
     (snap.widgets || []).forEach((widget) => {
       if (!widgetTemplates[widget.type]) return;
@@ -6247,7 +6708,8 @@
         backgroundPosition: stage.style.backgroundPosition || ''
       },
       widgets: Array.from(activeWidgets.entries()).map(([type, data]) => serializeWidget(type, data.el)),
-      stickers: Array.from(document.querySelectorAll('.sticker-floating')).map(serializeSticker)
+      stickers: Array.from(document.querySelectorAll('.sticker-floating')).map(serializeSticker),
+      annotations: getAnnotationData()
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -6325,7 +6787,9 @@
 
   function serializeSticker(sticker) {
     return {
-      html: sticker.firstChild?.textContent || sticker.textContent.replace('×', '').trim(),
+      html: sticker.dataset.text || sticker.textContent.replace('×', '').trim(),
+      icon: sticker.dataset.icon || '',
+      bg: sticker.dataset.bg || '',
       left: sticker.style.left,
       top: sticker.style.top,
       zIndex: sticker.style.zIndex
@@ -6335,7 +6799,11 @@
   function restoreSticker(data) {
     const stick = document.createElement('div');
     stick.className = 'sticker-floating';
-    stick.innerHTML = `${data.html || '⭐'}<div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`;
+    stick.dataset.icon = data.icon || '⭐';
+    stick.dataset.text = data.html || data.text || '';
+    stick.dataset.bg = data.bg || '#fff3bf';
+    stick.style.background = stick.dataset.bg;
+    stick.innerHTML = `<span class="sticker-floating-icon">${stick.dataset.icon}</span><span class="sticker-floating-text">${stick.dataset.text}</span><div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`;
     stick.style.left = data.left || '120px';
     stick.style.top = data.top || '160px';
     stick.style.zIndex = data.zIndex || ++zCounter;
@@ -6410,6 +6878,7 @@
         stage.style.backgroundSize = state.stage.backgroundSize || '';
         stage.style.backgroundPosition = state.stage.backgroundPosition || '';
       }
+      restoreAnnotationData(state.annotations || '');
 
       state.widgets.forEach((widget) => {
         if (!widgetTemplates[widget.type]) return;
@@ -6475,6 +6944,7 @@
     });
     activeWidgets.clear();
     document.querySelectorAll('.sticker-floating').forEach(s => s.remove());
+    clearAnnotationCanvas();
     stage.className = 'stage bg-bosque';
     stage.style.backgroundImage = '';
     stage.style.backgroundSize = '';
@@ -6552,10 +7022,17 @@
   });
 
   /* ============== STICKERS FLOTANTES ============== */
-  function addStickerToStage(emoji) {
+  function addStickerToStage(sticker) {
+    const data = typeof sticker === 'object'
+      ? sticker
+      : { icon: sticker, text: '', bg: '#fff3bf' };
     const stick = document.createElement('div');
     stick.className = 'sticker-floating';
-    stick.innerHTML = `${emoji}<div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`;
+    stick.dataset.icon = data.icon || '⭐';
+    stick.dataset.text = data.text || '';
+    stick.dataset.bg = data.bg || '#fff3bf';
+    stick.style.background = stick.dataset.bg;
+    stick.innerHTML = `<span class="sticker-floating-icon">${stick.dataset.icon}</span><span class="sticker-floating-text">${stick.dataset.text}</span><div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`;
     // posición aleatoria en pantalla, evitando bordes
     const x = 100 + Math.random() * (window.innerWidth - 300);
     const y = 150 + Math.random() * (window.innerHeight - 400);
@@ -6596,7 +7073,7 @@
     };
     stick.addEventListener('mousedown', onDown);
     stick.addEventListener('touchstart', onDown);
-    showToast(`${emoji} agregado a la pantalla`);
+    showToast(`${stick.dataset.icon} ${stick.dataset.text || 'Sticker'} agregado`);
     scheduleSaveState();
   }
 
