@@ -2494,9 +2494,9 @@
   .modal-overlay.active { display: flex; }
   .modal {
     background: white;
-    border-radius: 20px;
-    padding: 28px;
-    max-width: 480px;
+    border-radius: 16px;
+    padding: 26px;
+    max-width: 760px;
     width: 100%;
     box-shadow: 0 20px 60px rgba(0,0,0,0.4);
     position: relative;
@@ -2512,42 +2512,92 @@
     margin-bottom: 16px;
     font-size: 13px;
   }
-  .plans {
+  .pro-hero {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 18px;
+    align-items: stretch;
+  }
+  .pro-kicker {
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .pro-benefits {
+    display: grid;
+    gap: 8px;
+    margin: 18px 0;
+  }
+  .pro-benefit {
+    display: flex;
     gap: 10px;
-    margin-bottom: 16px;
+    align-items: flex-start;
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 13px;
   }
-  .plan {
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 14px;
-  }
-  .plan.featured {
+  .pro-benefit strong { display: block; color: var(--ink); margin-bottom: 2px; }
+  .pro-card {
+    border: 2px solid var(--accent);
+    border-radius: 14px;
+    padding: 18px;
     background: linear-gradient(135deg, #fff8e7, #fff5f7);
-    border-color: var(--accent);
-    position: relative;
   }
-  .plan.featured::before {
-    content: 'POPULAR';
-    position: absolute;
-    top: -10px;
-    right: 10px;
+  .pro-pill {
+    display: inline-flex;
     background: var(--accent);
     color: white;
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 800;
-    padding: 3px 8px;
-    border-radius: 8px;
+    padding: 4px 9px;
+    border-radius: 100px;
     letter-spacing: 0.5px;
+    margin-bottom: 10px;
   }
-  .plan h3 { font-family: 'Fraunces', serif; font-size: 16px; }
-  .plan .price { font-family: 'Fraunces', serif; font-weight: 800; font-size: 26px; margin: 6px 0; }
-  .plan .price small { font-size: 12px; font-weight: 400; color: var(--ink-soft); }
-  .plan ul { list-style: none; font-size: 11px; }
-  .plan ul li { padding: 2px 0 2px 16px; position: relative; }
-  .plan ul li::before { content: '✓'; position: absolute; left: 0; color: var(--accent-4); font-weight: 700; }
-  .plan ul li.no::before { content: '✗'; color: #cbd5e1; }
+  .pro-price {
+    font-family: 'Fraunces', serif;
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 1;
+    margin: 8px 0 4px;
+  }
+  .pro-price small {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .pro-card ul {
+    list-style: none;
+    display: grid;
+    gap: 6px;
+    margin: 14px 0;
+    font-size: 12px;
+  }
+  .pro-card li::before {
+    content: '✓';
+    color: var(--accent-4);
+    font-weight: 900;
+    margin-right: 7px;
+  }
+  .pro-email-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .pro-email-row input {
+    flex: 1;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: inherit;
+    min-width: 0;
+  }
   .modal-close {
     position: absolute;
     top: 12px;
@@ -2568,8 +2618,22 @@
     border-radius: 10px;
     font-size: 14px;
     font-family: inherit;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
+  }
+  .modal-secondary {
+    width: 100%;
+    background: transparent;
+    color: var(--ink-soft);
+    border: none;
+    padding: 9px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 700;
+    margin-top: 6px;
+  }
+  @media (max-width: 760px) {
+    .pro-hero { grid-template-columns: 1fr; }
+    .modal { max-height: 88vh; overflow-y: auto; }
+    .pro-email-row { flex-direction: column; }
   }
 
   /* ==== TOAST ==== */
@@ -2816,7 +2880,7 @@
         <button class="menu-item" onclick="toggleModoPresentacion(); closeTopMenu()">Presentar</button>
         <div class="menu-divider"></div>
         <button class="menu-item danger" onclick="limpiarPizarra(); closeTopMenu()">Limpiar</button>
-        <button class="menu-item primary" onclick="abrirModal(); closeTopMenu()">⭐ Mejorar a PRO</button>
+        <button class="menu-item primary" onclick="abrirModal(); closeTopMenu()">⭐ Prueba PRO 30 días</button>
       </div>
     </div>
   </div>
@@ -3008,42 +3072,36 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <button class="modal-close" onclick="cerrarModal()">×</button>
-    <h2>Lleva tu sala al siguiente nivel ⭐</h2>
-    <p>Desbloquea todas las herramientas pensadas para profes chilenos.</p>
-    <div class="plans">
-      <div class="plan">
-        <h3>Gratis</h3>
-        <div class="price">$0</div>
-        <ul>
-          <li>Reloj y temporizador</li>
-          <li>Semáforo y dado</li>
-          <li>Ruleta de nombres</li>
-          <li>Marcador y grupos</li>
-          <li>Detector de ruido + campanilla</li>
-          <li>Checklist y horario</li>
-          <li class="no">Generador de QR</li>
-          <li class="no">Video y cámara</li>
-          <li class="no">Guardar pantallas</li>
-        </ul>
+    <div class="pro-hero">
+      <div>
+        <div class="pro-kicker">Prueba gratis por 30 días</div>
+        <h2>Convierte Profe Pizarra en tu sala digital diaria</h2>
+        <p>Prepara varias pantallas, guarda tus clases y usa herramientas pensadas para proyectar sin improvisar.</p>
+        <div class="pro-benefits">
+          <div class="pro-benefit"><span>▦</span><div><strong>Pantallas ilimitadas</strong>Guarda distintas escenas para inicio, trabajo, evaluación y cierre.</div></div>
+          <div class="pro-benefit"><span>🔔</span><div><strong>Gestión de aula</strong>Detector de ruido, temporizador, grupos, ruletas y hojas proyectables.</div></div>
+          <div class="pro-benefit"><span>📚</span><div><strong>Plantillas premium</strong>Rutinas listas para clases chilenas, celebraciones y evaluaciones.</div></div>
+        </div>
       </div>
-      <div class="plan featured">
-        <h3>PRO</h3>
-        <div class="price">$3.990 <small>/mes</small></div>
+      <div class="pro-card">
+        <span class="pro-pill">PRO DOCENTE</span>
+        <h3>30 días gratis</h3>
+        <div class="pro-price">$3.990 <small>/mes después</small></div>
+        <p>Sin cobro hoy. Te avisaremos cuando el pago esté disponible.</p>
         <ul>
-          <li>Todo lo del plan Gratis</li>
-          <li>Generador de QR</li>
-          <li>Video de YouTube</li>
-          <li>Cámara web en pantalla</li>
-          <li>Empotrar páginas web</li>
-          <li>Visor de PDF</li>
-          <li>Guardar pantallas ilimitadas</li>
-          <li>Plantillas SIMCE</li>
-          <li>Soporte prioritario</li>
+          <li>Pizarras y pantallas ilimitadas</li>
+          <li>Exportar y presentar sin distracciones</li>
+          <li>Plantillas PRO y herramientas avanzadas</li>
+          <li>Soporte y mejoras prioritarias</li>
         </ul>
+        <div class="pro-email-row">
+          <input id="proEmail" type="email" placeholder="tu correo docente">
+          <button class="modal-cta" onclick="registrarInteresPro()">Avisarme</button>
+        </div>
+        <button class="modal-secondary" onclick="cerrarModal()">Seguir con la versión gratis</button>
+        <p style="text-align:center; font-size:10px; margin:8px 0 0;">Pronto activaremos pagos online con plan mensual y anual.</p>
       </div>
     </div>
-    <button class="modal-cta" onclick="activarPro()">⭐ Suscribirme a PRO</button>
-    <p style="text-align:center; font-size:10px; margin-top:10px;">Pago seguro vía Flow · Cancela cuando quieras</p>
   </div>
 </div>
 
@@ -5670,15 +5728,19 @@
   function cerrarModal() {
     document.getElementById('modal').classList.remove('active');
   }
-  function activarPro() {
-    isPro = true;
+  function registrarInteresPro() {
+    const emailInput = document.getElementById('proEmail');
+    const email = (emailInput?.value || '').trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      showToast('Ingresa un correo válido para avisarte');
+      emailInput?.focus();
+      return;
+    }
+    const leads = JSON.parse(localStorage.getItem('profePizarra.proLeads') || '[]');
+    leads.push({ email, createdAt: new Date().toISOString() });
+    localStorage.setItem('profePizarra.proLeads', JSON.stringify(leads.slice(-25)));
     cerrarModal();
-    const badge = document.getElementById('planBadge');
-    badge.textContent = '⭐ PRO';
-    badge.classList.add('pro');
-    document.querySelectorAll('.dock-pro').forEach(p => p.style.display = 'none');
-    showToast('⭐ ¡Bienvenido al Plan PRO!');
-    scheduleSaveState();
+    showToast('Listo. Te avisaremos cuando PRO esté disponible.');
   }
   document.getElementById('modal').addEventListener('click', (e) => {
     if (e.target.id === 'modal') cerrarModal();
