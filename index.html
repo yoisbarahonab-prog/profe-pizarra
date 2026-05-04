@@ -385,6 +385,7 @@
   .widget[data-type="dibujo"] .widget-handle { background: linear-gradient(135deg, #a78bfa, #ff6b9d); }
   .widget[data-type="horario"] .widget-handle { background: linear-gradient(135deg, #4dabf7, #a78bfa); }
   .widget[data-type="documento"] .widget-handle { background: linear-gradient(135deg, #1f2937, #4dabf7); color: white; }
+  .widget[data-type="memes"] .widget-handle { background: linear-gradient(135deg, #ff922b, #ff6b9d); }
   .widget[data-type="ruido"] .widget-handle { background: linear-gradient(135deg, #ff6b9d, #a78bfa); }
   .widget[data-type="qr"] .widget-handle { background: linear-gradient(135deg, #1f2937, #4dabf7); color: white; }
   .widget[data-type="qr"] .widget-handle .widget-title { color: white; }
@@ -392,6 +393,32 @@
   .widget[data-type="campanilla"] .widget-handle { background: linear-gradient(135deg, #ff922b, #ffd43b); }
 
   /* ==== RELOJ ==== */
+  .clock-widget {
+    text-align: center;
+  }
+  .clock-mode-toggle {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    margin-bottom: 10px;
+    background: #f1f5f9;
+    border-radius: 999px;
+  }
+  .clock-mode-btn {
+    border: 0;
+    border-radius: 999px;
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--ink);
+    background: transparent;
+    cursor: pointer;
+  }
+  .clock-mode-btn.active {
+    background: var(--ink);
+    color: white;
+  }
   .clock-time {
     font-family: 'Fraunces', serif;
     font-weight: 800;
@@ -406,6 +433,74 @@
     margin-top: 6px;
     text-align: center;
     text-transform: capitalize;
+  }
+  .analog-clock {
+    width: 174px;
+    height: 174px;
+    margin: 0 auto 8px;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at center, #1f2937 0 5px, transparent 6px),
+      conic-gradient(from 0deg, #e5e7eb 0 1deg, transparent 1deg 30deg);
+    border: 8px solid white;
+    box-shadow: inset 0 0 0 2px #dbeafe, 0 10px 25px rgba(15,23,42,0.16);
+    position: relative;
+  }
+  .analog-clock::before {
+    content: '12';
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .analog-clock::after {
+    content: '6';
+    position: absolute;
+    bottom: 7px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-weight: 900;
+    color: var(--ink);
+  }
+  .analog-side {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: 900;
+    color: var(--ink-soft);
+  }
+  .analog-side.left { left: 12px; }
+  .analog-side.right { right: 12px; }
+  .clock-hand {
+    position: absolute;
+    left: 50%;
+    bottom: 50%;
+    transform-origin: bottom center;
+    border-radius: 999px;
+    background: var(--ink);
+  }
+  .clock-hand.hour {
+    width: 6px;
+    height: 48px;
+    margin-left: -3px;
+  }
+  .clock-hand.minute {
+    width: 4px;
+    height: 66px;
+    margin-left: -2px;
+    background: #2563eb;
+  }
+  .clock-hand.second {
+    width: 2px;
+    height: 70px;
+    margin-left: -1px;
+    background: var(--accent);
+  }
+  .clock-digital-view.hidden,
+  .clock-analog-view.hidden {
+    display: none;
   }
 
   /* ==== TEMPORIZADOR ==== */
@@ -1521,6 +1616,62 @@
     border: 2px solid white;
   }
   .sticker-floating:hover .sticker-x { display: flex; }
+  .sticker-floating.meme-floating {
+    padding: 0;
+    min-width: 120px;
+    width: 210px;
+    max-width: 320px;
+    overflow: visible;
+    background: transparent !important;
+    border-radius: 14px;
+  }
+  .meme-floating img {
+    display: block;
+    width: 100%;
+    border-radius: 14px;
+    border: 4px solid white;
+    box-shadow: 0 12px 28px rgba(0,0,0,0.24);
+    pointer-events: none;
+  }
+  .meme-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .meme-card {
+    border: 1.5px solid #e5e7eb;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.15s;
+  }
+  .meme-card:hover {
+    transform: translateY(-2px);
+  }
+  .meme-card img {
+    width: 100%;
+    height: 84px;
+    object-fit: cover;
+    display: block;
+  }
+  .meme-card span {
+    display: block;
+    padding: 6px;
+    font-size: 10px;
+    font-weight: 800;
+    color: var(--ink);
+  }
+  .meme-actions {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
 
   /* ==== IMAGEN ==== */
   .image-widget-body {
@@ -3223,6 +3374,10 @@
     <span class="dock-icon">⭐</span>
     <span>Stickers</span>
   </button>
+  <button class="dock-btn" onclick="toggleWidget('memes')" data-widget="memes">
+    <span class="dock-icon">😹</span>
+    <span>Memes</span>
+  </button>
   <div class="dock-divider"></div>
   <button class="dock-btn dock-more" onclick="abrirPanelWidgets()">
     <span class="dock-icon">➕</span>
@@ -3271,6 +3426,7 @@
         <div class="panel-item" onclick="addFromPanel('imagen')"><div class="panel-icon">🖼️</div><div>Imagen</div></div>
         <div class="panel-item" onclick="addFromPanel('documento')"><div class="panel-icon">📄</div><div>Documento</div></div>
         <div class="panel-item" onclick="addFromPanel('stickers')"><div class="panel-icon">⭐</div><div>Stickers</div></div>
+        <div class="panel-item" onclick="addFromPanel('memes')"><div class="panel-icon">😹</div><div>Memes</div></div>
         <div class="panel-item" onclick="addFromPanel('hipervinculo')"><div class="panel-icon">🔗</div><div>Hipervínculo</div></div>
       </div>
     </div>
@@ -3394,19 +3550,65 @@
   const widgetTemplates = {
     reloj: {
       title: '🕐 Reloj',
-      width: 220,
+      width: 240,
       body: () => `
-        <div class="clock-time" id="${uid('clockTime')}">--:--</div>
-        <div class="clock-date" id="${uid('clockDate')}">Cargando...</div>
+        <div class="clock-widget">
+          <div class="clock-mode-toggle">
+            <button class="clock-mode-btn active" data-mode="digital" type="button">Digital</button>
+            <button class="clock-mode-btn" data-mode="analog" type="button">Análogo</button>
+          </div>
+          <input type="hidden" class="clock-mode-value" value="digital">
+          <div class="clock-digital-view">
+            <div class="clock-time">--:--</div>
+            <div class="clock-date">Cargando...</div>
+          </div>
+          <div class="clock-analog-view hidden">
+            <div class="analog-clock">
+              <span class="analog-side left">9</span>
+              <span class="analog-side right">3</span>
+              <div class="clock-hand hour"></div>
+              <div class="clock-hand minute"></div>
+              <div class="clock-hand second"></div>
+            </div>
+            <div class="clock-date">Cargando...</div>
+          </div>
+        </div>
       `,
       onInit: (root) => {
         const tEl = root.querySelector('.clock-time');
-        const dEl = root.querySelector('.clock-date');
+        const dateEls = root.querySelectorAll('.clock-date');
+        const digitalView = root.querySelector('.clock-digital-view');
+        const analogView = root.querySelector('.clock-analog-view');
+        const modeValue = root.querySelector('.clock-mode-value');
+        const hourHand = root.querySelector('.clock-hand.hour');
+        const minuteHand = root.querySelector('.clock-hand.minute');
+        const secondHand = root.querySelector('.clock-hand.second');
+        const setMode = (mode) => {
+          const analog = mode === 'analog';
+          modeValue.value = mode;
+          digitalView.classList.toggle('hidden', analog);
+          analogView.classList.toggle('hidden', !analog);
+          root.querySelectorAll('.clock-mode-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+          });
+          scheduleSaveState();
+        };
         const tick = () => {
           const n = new Date();
           tEl.textContent = `${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}`;
-          dEl.textContent = n.toLocaleDateString('es-CL', { weekday:'long', day:'numeric', month:'long' });
+          const dateText = n.toLocaleDateString('es-CL', { weekday:'long', day:'numeric', month:'long' });
+          dateEls.forEach(el => el.textContent = dateText);
+          const seconds = n.getSeconds();
+          const minutes = n.getMinutes() + seconds / 60;
+          const hours = (n.getHours() % 12) + minutes / 60;
+          hourHand.style.transform = `rotate(${hours * 30}deg)`;
+          minuteHand.style.transform = `rotate(${minutes * 6}deg)`;
+          secondHand.style.transform = `rotate(${seconds * 6}deg)`;
         };
+        root.querySelectorAll('.clock-mode-btn').forEach(btn => {
+          btn.addEventListener('click', () => setMode(btn.dataset.mode));
+        });
+        modeValue.addEventListener('change', () => setMode(modeValue.value || 'digital'));
         tick();
         const i = setInterval(tick, 1000);
         return () => clearInterval(i);
@@ -4326,6 +4528,87 @@
             renderStickers();
           });
         });
+      }
+    },
+
+    memes: {
+      title: '😹 Memes',
+      width: 300,
+      body: () => `
+        <div class="meme-actions">
+          <button class="btn-mini primary meme-upload-btn">📁 Subir memes</button>
+          <button class="btn-mini meme-reset-btn">↺ Base</button>
+        </div>
+        <div class="meme-grid"></div>
+        <input type="file" class="meme-file-input" accept="image/*" multiple style="display:none;">
+        <p style="font-size:10px; color:var(--ink-soft); margin-top:8px; text-align:center;">Haz clic en un meme para ponerlo en la pizarra. Puedes moverlo como sticker.</p>
+      `,
+      onInit: (root) => {
+        const baseMemes = [
+          { name: 'Gato llorando', src: 'memes/gato-llorando.jpeg' },
+          { name: 'Gato sospechoso', src: 'memes/meme-gato.jpeg' },
+          { name: 'Bien hecho', src: 'memes/bien.jpeg' },
+          { name: 'Pensando', src: 'memes/pensando.jpeg' }
+        ];
+        const storageKey = 'profePizarra.customMemes';
+        const grid = root.querySelector('.meme-grid');
+        const fileInput = root.querySelector('.meme-file-input');
+        const getCustomMemes = () => {
+          try {
+            return JSON.parse(localStorage.getItem(storageKey) || '[]');
+          } catch {
+            return [];
+          }
+        };
+        const setCustomMemes = (memes) => {
+          try {
+            localStorage.setItem(storageKey, JSON.stringify(memes.slice(-12)));
+          } catch {
+            showToast('No se pudo guardar el meme: imagen muy pesada');
+          }
+        };
+        const renderMemes = () => {
+          const memes = [...baseMemes, ...getCustomMemes()];
+          grid.innerHTML = memes.map((m, index) => `
+            <button class="meme-card" data-index="${index}" type="button">
+              <img src="${m.src}" alt="${m.name}">
+              <span>${m.name}</span>
+            </button>
+          `).join('');
+          grid.querySelectorAll('.meme-card').forEach((card) => {
+            card.addEventListener('click', () => {
+              const meme = memes[Number(card.dataset.index)];
+              addStickerToStage({ image: meme.src, text: meme.name, bg: 'transparent' });
+            });
+          });
+        };
+        root.querySelector('.meme-upload-btn').addEventListener('click', () => fileInput.click());
+        root.querySelector('.meme-reset-btn').addEventListener('click', () => {
+          localStorage.removeItem(storageKey);
+          renderMemes();
+          showToast('Memes personalizados limpiados');
+        });
+        fileInput.addEventListener('change', (e) => {
+          const files = Array.from(e.target.files || []).slice(0, 5);
+          if (!files.length) return;
+          const custom = getCustomMemes();
+          let pending = files.length;
+          files.forEach((file) => {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+              custom.push({ name: file.name.replace(/\.[^.]+$/, '').slice(0, 24), src: ev.target.result });
+              pending--;
+              if (pending === 0) {
+                setCustomMemes(custom);
+                renderMemes();
+                showToast('😹 Memes agregados');
+              }
+            };
+            reader.readAsDataURL(file);
+          });
+          e.target.value = '';
+        });
+        renderMemes();
       }
     },
 
@@ -6790,6 +7073,7 @@
       html: sticker.dataset.text || sticker.textContent.replace('×', '').trim(),
       icon: sticker.dataset.icon || '',
       bg: sticker.dataset.bg || '',
+      image: sticker.dataset.image || '',
       left: sticker.style.left,
       top: sticker.style.top,
       zIndex: sticker.style.zIndex
@@ -6798,12 +7082,15 @@
 
   function restoreSticker(data) {
     const stick = document.createElement('div');
-    stick.className = 'sticker-floating';
+    stick.className = data.image ? 'sticker-floating meme-floating' : 'sticker-floating';
     stick.dataset.icon = data.icon || '⭐';
     stick.dataset.text = data.html || data.text || '';
     stick.dataset.bg = data.bg || '#fff3bf';
+    stick.dataset.image = data.image || '';
     stick.style.background = stick.dataset.bg;
-    stick.innerHTML = `<span class="sticker-floating-icon">${stick.dataset.icon}</span><span class="sticker-floating-text">${stick.dataset.text}</span><div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`;
+    stick.innerHTML = data.image
+      ? `<img src="${data.image}" alt="${stick.dataset.text || 'Meme'}"><div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`
+      : `<span class="sticker-floating-icon">${stick.dataset.icon}</span><span class="sticker-floating-text">${stick.dataset.text}</span><div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`;
     stick.style.left = data.left || '120px';
     stick.style.top = data.top || '160px';
     stick.style.zIndex = data.zIndex || ++zCounter;
@@ -7027,12 +7314,15 @@
       ? sticker
       : { icon: sticker, text: '', bg: '#fff3bf' };
     const stick = document.createElement('div');
-    stick.className = 'sticker-floating';
+    stick.className = data.image ? 'sticker-floating meme-floating' : 'sticker-floating';
     stick.dataset.icon = data.icon || '⭐';
     stick.dataset.text = data.text || '';
     stick.dataset.bg = data.bg || '#fff3bf';
+    stick.dataset.image = data.image || '';
     stick.style.background = stick.dataset.bg;
-    stick.innerHTML = `<span class="sticker-floating-icon">${stick.dataset.icon}</span><span class="sticker-floating-text">${stick.dataset.text}</span><div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`;
+    stick.innerHTML = data.image
+      ? `<img src="${data.image}" alt="${stick.dataset.text || 'Meme'}"><div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`
+      : `<span class="sticker-floating-icon">${stick.dataset.icon}</span><span class="sticker-floating-text">${stick.dataset.text}</span><div class="sticker-x" onclick="event.stopPropagation(); this.parentElement.remove(); scheduleSaveState();">×</div>`;
     // posición aleatoria en pantalla, evitando bordes
     const x = 100 + Math.random() * (window.innerWidth - 300);
     const y = 150 + Math.random() * (window.innerHeight - 400);
