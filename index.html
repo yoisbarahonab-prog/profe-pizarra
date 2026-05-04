@@ -3137,7 +3137,7 @@
   let nextPosition = { x: 60, y: 100 };
   let isPro = false;
   const STORAGE_KEY = 'profePantalla.v5.workspace';
-  const STORAGE_BUILD = 2026050204;
+  const STORAGE_BUILD = 2026050301;
   let isRestoringState = false;
   let saveTimer = null;
   let screens = [];
@@ -6235,7 +6235,7 @@
       version: 5,
       build: STORAGE_BUILD,
       savedAt: new Date().toISOString(),
-      isPro,
+      isPro: false,
       zCounter,
       nextPosition,
       activeScreenId,
@@ -6389,7 +6389,7 @@
         return false;
       }
       isRestoringState = true;
-      isPro = !!state.isPro;
+      isPro = false;
       zCounter = state.zCounter || zCounter;
       nextPosition = state.nextPosition || nextPosition;
 
