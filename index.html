@@ -1099,67 +1099,107 @@
   /* ==== MEDIDOR DE RUIDO + CAMPANILLA ==== */
   .noise-display {
     text-align: center;
+    padding: 2px 0 4px;
   }
-  .noise-guide {
+  .noise-gauge {
+    width: 220px;
+    height: 126px;
+    margin: 0 auto 2px;
+  }
+  .noise-gauge svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .noise-track {
+    fill: none;
+    stroke: #f7dede;
+    stroke-width: 30;
+    stroke-linecap: butt;
+  }
+  .noise-fill {
+    fill: none;
+    stroke: #6664f2;
+    stroke-width: 30;
+    stroke-linecap: butt;
+    stroke-dasharray: 0 100;
+    transition: stroke-dasharray 0.14s ease-out;
+  }
+  .noise-label {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--ink);
+    margin: -4px 0 8px;
+  }
+  .noise-slider-wrap {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 5px;
+    margin: 0 8px 12px;
+  }
+  .threshold-slider {
+    width: 100%;
+    accent-color: #6664f2;
+  }
+  .noise-ticks {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 6px;
+    color: #d1d5db;
+    font-weight: 900;
+    line-height: 1;
+    user-select: none;
+  }
+  .noise-bottom-actions {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 10px;
-    font-weight: 800;
-    color: var(--ink-soft);
-    margin-bottom: 5px;
+    gap: 14px;
+    margin-top: 4px;
   }
-  .noise-bar-container {
-    height: 30px;
-    background: #f1f5f9;
-    border-radius: 17px;
-    overflow: hidden;
-    position: relative;
-    margin-bottom: 8px;
-    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.05);
-  }
-  .noise-fill {
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #51cf66 0%, #ffd43b 60%, #ff6b9d 100%);
-    transition: width 0.15s;
-    border-radius: 14px;
-  }
-  .noise-threshold {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: var(--ink);
-    transition: left 0.2s;
-    box-shadow: 0 0 0 2px rgba(255,255,255,0.85);
-  }
-  .noise-threshold::after {
-    content: "suena";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%) rotate(-90deg);
+  .noise-round-btn {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 2px solid var(--ink);
+    background: white;
     color: var(--ink);
-    font-size: 8px;
+    font-size: 25px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .noise-round-btn.active {
+    background: #eef2ff;
+    border-color: #6664f2;
+    color: #6664f2;
+  }
+  .noise-count-pill {
+    min-width: 78px;
+    height: 46px;
+    padding: 0 14px;
+    border: none;
+    border-radius: 999px;
+    background: #f0efff;
+    color: #6664f2;
+    font-size: 22px;
     font-weight: 900;
-    letter-spacing: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-family: inherit;
   }
   .noise-counter {
-    font-family: 'Fraunces', serif;
-    font-weight: 800;
-    font-size: 32px;
+    font-family: inherit;
+    font-weight: 900;
+    font-size: 24px;
     line-height: 1;
-    color: var(--accent);
-  }
-  .noise-counter-label {
-    font-size: 11px;
-    color: var(--ink-soft);
-    margin-bottom: 4px;
   }
   .bell-icon {
-    font-size: 28px;
-    margin: 0 6px;
+    font-size: 24px;
     transition: transform 0.2s;
     display: inline-block;
   }
@@ -1171,58 +1211,48 @@
     60% { transform: rotate(-15deg) scale(1.15); }
     80% { transform: rotate(10deg) scale(1.1); }
   }
-  .noise-status-card {
-    background: #f8fafc;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 7px;
-    margin: 7px 0;
-  }
-  .noise-state {
-    font-size: 12px;
-    font-weight: 900;
-    color: var(--ink);
-  }
-  .noise-live-status {
-    font-size: 11px;
+  .mic-help {
+    font-size: 10px;
     color: var(--ink-soft);
-    margin-top: 2px;
-    font-weight: 800;
+    margin-top: 8px;
+    line-height: 1.35;
+    min-height: 0;
   }
-  .noise-main-actions {
+  .noise-advanced-toggle {
+    margin-top: 8px;
+    border: none;
+    background: #f8fafc;
+    color: var(--ink-soft);
+    border-radius: 8px;
+    padding: 6px 9px;
+    font-family: inherit;
+    font-size: 10px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+  .noise-advanced {
+    display: none;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .noise-advanced.show { display: grid; }
+  .noise-mini-actions {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px;
-    margin-top: 7px;
   }
-  .noise-action {
+  .noise-mini-action {
     border: none;
-    border-radius: 10px;
-    padding: 7px 7px;
-    background: var(--ink);
-    color: white;
+    border-radius: 9px;
+    padding: 7px 8px;
+    background: #eef2ff;
+    color: var(--ink);
     font-family: inherit;
     font-size: 11px;
     font-weight: 900;
     cursor: pointer;
-    min-height: 34px;
   }
-  .noise-action.primary { background: var(--accent); }
-  .noise-action.warn { background: var(--accent-6); }
-  .noise-action.soft {
-    background: #eef2ff;
-    color: var(--ink);
-  }
-  .noise-action:hover { opacity: 0.9; transform: translateY(-1px); }
-  .noise-sensitivity-row {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 6px;
-    align-items: center;
-    margin-top: 6px;
-    font-size: 10px;
-    color: var(--ink-soft);
-  }
+
 
   /* Desafío del medidor */
   .challenge-box {
@@ -4215,52 +4245,35 @@
     campanilla: {
       title: '🔔 Detector de ruido',
       icon: '🔔',
-      width: 260,
+      width: 300,
       body: () => `
         <div class="noise-display">
-          <div class="noise-guide">
-            <span>Silencio</span>
-            <span>Ruido fuerte</span>
+          <div class="noise-gauge" aria-hidden="true">
+            <svg viewBox="0 0 220 130">
+              <path class="noise-track" d="M20 110 A90 90 0 0 1 200 110" pathLength="100"></path>
+              <path class="noise-fill" d="M20 110 A90 90 0 0 1 200 110" pathLength="100"></path>
+            </svg>
           </div>
-          <div class="noise-bar-container">
-            <div class="noise-fill"></div>
-            <div class="noise-threshold" style="left:24%"></div>
+          <div class="noise-label">Max. ruido</div>
+          <div class="noise-slider-wrap">
+            <input type="range" min="5" max="75" value="35" class="threshold-slider" title="Ruido máximo">
+            <div class="noise-ticks"><span>|</span><span>|</span><span>|</span><span>|</span><span>|</span></div>
           </div>
-
-          <div class="noise-status-card">
-            <div class="noise-state">Micrófono apagado</div>
-            <div class="noise-live-status">Nivel actual: 0%</div>
-            <div style="display:flex; justify-content:center; align-items:center; margin-top:5px;">
-              <span class="bell-icon">🔔</span>
-              <span class="noise-counter">0</span>
-            </div>
-            <div class="noise-counter-label">alertas de ruido</div>
+          <div class="noise-bottom-actions">
+            <button class="noise-round-btn test-bell" title="Probar campana" aria-label="Probar campana">🔔</button>
+            <button class="noise-count-pill reset-bell" title="Reiniciar contador" aria-label="Reiniciar contador"><span class="bell-icon">🔔</span><span class="noise-counter">0</span></button>
+            <button class="noise-round-btn mic-btn" title="Activar micrófono" aria-label="Activar micrófono">🎙️</button>
           </div>
-
-          <div class="noise-main-actions">
-            <button class="noise-action primary mic-btn" title="Activar micrófono" aria-label="Activar micrófono">🎤 Activar</button>
-            <button class="noise-action test-bell" title="Probar sonido" aria-label="Probar sonido">🔔 Probar</button>
-            <button class="noise-action soft demo-noise" title="Simular ruido" aria-label="Simular ruido">📊 Simular</button>
-            <button class="noise-action soft reset-bell" title="Reiniciar contador" aria-label="Reiniciar contador">↺ Reiniciar</button>
-          </div>
-          <div class="mic-help" style="font-size:10px; color:var(--ink-soft); margin-top:6px; line-height:1.35;"></div>
-
-          <div class="noise-compact-tools">
-            <div class="noise-sensitivity-row">
-              <span>Límite:</span>
-              <input type="range" min="5" max="65" value="24" class="threshold-slider" style="flex:1; max-width:140px;">
-              <span class="threshold-value" style="font-size:10px; font-weight:700;">24%</span>
-            </div>
-            <button class="noise-advanced-toggle" type="button">Opciones</button>
-          </div>
-
+          <div class="mic-help"></div>
+          <button class="noise-advanced-toggle" type="button">Opciones</button>
           <div class="noise-extra-controls noise-advanced">
-            <select class="mic-select" title="Seleccionar micrófono" style="width:100%; margin-bottom:8px; padding:7px 8px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:11px;">
+            <select class="mic-select" title="Seleccionar micrófono" style="width:100%; padding:7px 8px; border:1px solid #e5e7eb; border-radius:8px; font-family:inherit; font-size:11px;">
               <option value="">Micrófono predeterminado</option>
             </select>
-            <div style="display:flex; gap:6px; justify-content:center; align-items:center; flex-wrap:wrap;">
-              <button class="noise-action soft mute-btn" title="Silenciar campanilla" aria-label="Silenciar campanilla">🔊 Sonido</button>
-              <button class="noise-action warn pause-btn" title="Pausar detección" aria-label="Pausar detección">⏸ Pausar</button>
+            <div class="noise-mini-actions">
+              <button class="noise-mini-action demo-noise" title="Simular ruido" aria-label="Simular ruido">Simular</button>
+              <button class="noise-mini-action mute-btn" title="Silenciar campana" aria-label="Silenciar campana">Sonido</button>
+              <button class="noise-mini-action pause-btn" title="Pausar detección" aria-label="Pausar detección">Pausar</button>
             </div>
           </div>
         </div>
@@ -4269,9 +4282,8 @@
         const fill = root.querySelector('.noise-fill');
         const counter = root.querySelector('.noise-counter');
         const bell = root.querySelector('.bell-icon');
-        const state = root.querySelector('.noise-state');
-        const thresholdLine = root.querySelector('.noise-threshold');
-        let threshold = 24;
+        const thresholdLine = null;
+        let threshold = 35;
         let count = 0;
         let ringingCooldown = false;
         let visualLevel = 0;
@@ -4346,10 +4358,7 @@
           level = Math.max(0, Math.min(100, level));
           visualLevel = Math.max(level, visualLevel * 0.82);
           level = visualLevel;
-          fill.style.width = `${level}%`;
-          const liveStatus = root.querySelector('.noise-live-status');
-          if (liveStatus) liveStatus.textContent = `Nivel actual: ${Math.round(level)}%`;
-          if (state) state.textContent = paused ? 'Detección pausada' : (level >= threshold ? 'Ruido alto: suena la campanilla' : 'Ruido bajo el límite');
+          fill.style.strokeDasharray = `${level} 100`;
           fill.style.filter = level >= threshold ? 'saturate(1.35)' : 'none';
           if (level > threshold && !ringingCooldown && !paused) {
             ringBell(true);
@@ -4365,7 +4374,7 @@
         const muteBtn = root.querySelector('.mute-btn');
         const pauseBtn = root.querySelector('.pause-btn');
         const slider = root.querySelector('.threshold-slider');
-        const thresholdValue = root.querySelector('.threshold-value');
+        const thresholdValue = { textContent: '' };
         const help = root.querySelector('.mic-help');
         const demoBtn = root.querySelector('.demo-noise');
         const micSelect = root.querySelector('.mic-select');
@@ -4392,7 +4401,7 @@
 
         if (!hasMicApi()) {
           micBtn.disabled = true;
-          micBtn.textContent = '🎤 Activar';
+          micBtn.textContent = '🎙️';
           micBtn.title = 'Micrófono no disponible';
           updateMicHelp(isLocalFile()
             ? 'El navegador bloquea el micrófono al abrir como archivo. Abre esta página desde http://localhost para usar detección real.'
@@ -4408,14 +4417,13 @@
           if (demoTimer) {
             clearInterval(demoTimer);
             demoTimer = null;
-            fill.style.width = '0%';
-            root.querySelector('.noise-live-status').textContent = 'Nivel actual: 0%';
-            demoBtn.textContent = '📊 Simular';
+            fill.style.strokeDasharray = '0 100';
+                        demoBtn.textContent = 'Simular';
             demoBtn.title = 'Simular ruido';
             updateMicHelp('');
             return;
           }
-          demoBtn.textContent = '■ Detener';
+          demoBtn.textContent = 'Detener';
           demoBtn.title = 'Detener simulación';
           updateMicHelp('Simulación activa: sube y baja el nivel para probar el umbral y la campanilla.');
           let t = 0;
@@ -4435,7 +4443,7 @@
           if (demoTimer) {
             clearInterval(demoTimer);
             demoTimer = null;
-            demoBtn.textContent = '▰';
+            demoBtn.textContent = 'Simular';
             demoBtn.title = 'Simular ruido';
           }
           if (audioCtx) {
@@ -4443,9 +4451,8 @@
             audioCtx = null;
           }
           visualLevel = 0;
-          fill.style.width = '0%';
-          root.querySelector('.noise-live-status').textContent = 'Nivel actual: 0%';
-          micBtn.textContent = '🎤';
+          fill.style.strokeDasharray = '0 100';
+                    micBtn.textContent = '🎙️';
           micBtn.title = 'Activar micrófono';
           micBtn.classList.add('primary');
           extraControls.classList.remove('show');
@@ -4511,9 +4518,8 @@
               rafId = requestAnimationFrame(tick);
             };
             tick();
-            micBtn.textContent = '■ Detener';
+            micBtn.textContent = '■';
             micBtn.title = 'Detener detección';
-            if (state) state.textContent = 'Micrófono activo';
             micBtn.classList.remove('primary');
             extraControls.classList.add('show');
             updateMicHelp('');
@@ -4535,7 +4541,7 @@
         // Botón silenciar (solo apaga el sonido, sigue detectando)
         muteBtn.addEventListener('click', () => {
           muted = !muted;
-          muteBtn.textContent = muted ? '🔇 Silencio' : '🔊 Sonido';
+          muteBtn.textContent = muted ? 'Silencio' : 'Sonido';
           muteBtn.title = muted ? 'Activar sonido' : 'Silenciar campanilla';
           showToast(muted ? '🔇 Campanilla en silencio' : '🔊 Campanilla con sonido');
         });
@@ -4543,15 +4549,11 @@
         // Botón pausar (deja de detectar pero la barra sigue moviéndose)
         pauseBtn.addEventListener('click', () => {
           paused = !paused;
-          pauseBtn.textContent = paused ? '▶ Reanudar' : '⏸ Pausar';
+          pauseBtn.textContent = paused ? 'Reanudar' : 'Pausar';
           pauseBtn.title = paused ? 'Reanudar detección' : 'Pausar detección';
           if (paused) {
             visualLevel = 0;
-            fill.style.width = '0%';
-            root.querySelector('.noise-live-status').textContent = 'Nivel actual: 0%';
-            if (state) state.textContent = 'Detección pausada';
-          } else if (state) {
-            state.textContent = micStream ? 'Micrófono activo' : 'Micrófono apagado';
+            fill.style.strokeDasharray = '0 100';
           }
           showToast(paused ? '⏸ Detección pausada' : '▶ Detección reanudada');
         });
@@ -4560,7 +4562,7 @@
         slider.addEventListener('input', () => {
           threshold = parseInt(slider.value);
           thresholdValue.textContent = threshold + '%';
-          thresholdLine.style.left = threshold + '%';
+          
         });
 
         root.querySelector('.reset-bell').addEventListener('click', () => {
